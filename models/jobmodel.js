@@ -5,6 +5,7 @@ import {Schema,model} from "mongoose";
 const jobSchema = new Schema({
  
     jobtitle:String,
+    location:String,
     description:String,
     companydescription:String,
     roledescription:String,

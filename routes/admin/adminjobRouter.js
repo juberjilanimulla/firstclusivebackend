@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { errorResponse, successResponse } from "../../helpers/serverResponse.js";
-import admincareermodel from "../../models/jobmodel.js";
 import jobmodels from "../../models/jobmodel.js";
-
+import axios from "axios";
 
 
 const adminjobRouter =Router()
@@ -38,8 +37,10 @@ async function createjobHandler(req,res){
         const careerjob = await jobmodels.create(params);
         if(!careerjob){
             return errorResponse(res,404,"career job add not properly")
-        }
-        successResponse(res,"success",careerjob)
+        } 
+      
+
+        successResponse(res, "success",careerjob);
     } catch (error) {
         console.log("error",error);
         errorResponse(res,500,"internal server error")
@@ -69,8 +70,21 @@ async function updatejobHandler(req,res){
       updatedData,
       options
     );
+    // Update LinkedIn Job Post
+    const linkedInJobPost = {
+        "jobTitle": updatedData.jobtitle,
+        "description": updatedData.description,
+        "location": updatedData.location,
+        "companyDescription": updatedData.companydescription,
+        "roleDescription": updatedData.roledescription,
+        "qualifications": updatedData.qualifications,
+        "bonusSkills": updatedData.bonusskills
+    };
 
-    successResponse(res, "success Updated", updated);
+    const linkedInResponse = await updateJobOnLinkedIn(_id, linkedInJobPost);
+
+    successResponse(res, "success Updated", { updated, linkedInResponse });
+  
     } catch (error) {
         console.log("error",error);
         errorResponse(res,500,"internal server error")
@@ -87,7 +101,10 @@ async function deletejobHandler(req,res){
         if(!team){
             return errorResponse(res,404,"team id not found")
         }
-        successResponse(res,"Success")
+        // Delete LinkedIn Job Post
+        const linkedInResponse = await deleteJobOnLinkedIn(_id);
+
+        successResponse(res, "Success", { team, linkedInResponse });
     } catch (error) {
         console.log("error",error);
         errorResponse(res,500,"internal server error")
@@ -112,3 +129,47 @@ async function getsinglejobHandler(req, res) {
       errorResponse(res, 500, "internal server error");
     }
   }
+
+  async function postJobToLinkedIn(jobData) {
+    const token = 'YOUR_LINKEDIN_ACCESS_TOKEN'; // Obtain this token via OAuth
+    const url = 'https://api.linkedin.com/v2/jobs';
+
+    const response = await axios.post(url, jobData, {
+        headers: {
+            'Authorization': `Bearer ${encoded_token}`,
+            'Content-Type': 'application/json',
+            'X-Restli-Protocol-Version': '2.0.0'
+        }
+    });
+
+    return response.data;
+}
+
+async function updateJobOnLinkedIn(jobId, jobData) {
+    const token = 'YOUR_LINKEDIN_ACCESS_TOKEN'; // Obtain this token via OAuth
+    const url = `https://api.linkedin.com/v2/jobs/${jobId}`;
+
+    const response = await axios.put(url, jobData, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'X-Restli-Protocol-Version': '2.0.0'
+        }
+    });
+
+    return response.data;
+}
+
+async function deleteJobOnLinkedIn(jobId) {
+    const token = 'YOUR_LINKEDIN_ACCESS_TOKEN'; // Obtain this token via OAuth
+    const url = `https://api.linkedin.com/v2/jobs/${jobId}`;
+
+    const response = await axios.delete(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'X-Restli-Protocol-Version': '2.0.0'
+        }
+    });
+
+    return response.data;
+}
