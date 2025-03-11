@@ -25,7 +25,7 @@ function checkFileType(file, cb) {
     cb(new Error("Error: Images Only!"));
   }
 }
-
+  
 
 const storage = multer.memoryStorage();
 // Configure multer for single file upload

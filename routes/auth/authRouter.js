@@ -138,12 +138,3 @@ async function refreshtokenHandler(req, res) {
   }
 }
 
-authRouter.get("/register",async (req,res)=>{
-  const users = await new user({
-    name:"john",
-    email:"john@gmail.com",
-    password:"1234"
-  })
-  await users.save();
-  res.send("ok")
-})

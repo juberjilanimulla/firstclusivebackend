@@ -27,11 +27,7 @@ morgan.token("url", (req) => {
   return req.originalUrl;
 });
 
-app.use(
-  morgan(
-    ":remote-addr :method :url :status :res[content-length] - :response-time ms"
-  )
-);
+
 
 //middleware
 app.use(express.json());
