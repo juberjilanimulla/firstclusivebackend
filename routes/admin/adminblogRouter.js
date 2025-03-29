@@ -8,41 +8,38 @@ import blogsmodel from "../../models/blogsmodel.js";
 const adminblogRouter = Router();
 
 adminblogRouter.get("/getall", getallblogsHandler);
-adminblogRouter.post("/create", createblogsHandler);
+adminblogRouter.post("/create", createblogHandler);
 adminblogRouter.post("/update", updateblogsHandler);
 adminblogRouter.post("/delete", deleteblogsHandler);
-
 export default adminblogRouter;
 
 async function getallblogsHandler(req, res) {
   try {
-    const blogs = await blogsmodel.find();
-    successResponse(res, "Success", blogs);
+    const blog = await blogsmodel.find();
+    successResponse(res, "success", blog);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
   }
 }
 
-async function createblogsHandler(req, res) {
+async function createblogHandler(req, res) {
   try {
-    const { title, metatitle, metadescription, keywords, content } = req.body;
+    const { title, metatitle, metadescription, keywords, content, published } =
+      req.body;
     if (!title || !metatitle || !metadescription || !keywords || !content) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const params = {
+    const parmas = {
       title,
       metatitle,
       metadescription,
       keywords,
       content,
+      published: true,
     };
-    const blog = await blogsmodel.create(params);
-    console.log("blog", blog);
-    if (!blog) {
-      return errorResponse(res, 404, "blogs are not created");
-    }
-    successResponse(res, "blog created successfully", blog);
+    const blog = await blogsmodel.create(parmas);
+    successResponse(res, "successfully updated", blog);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
@@ -51,6 +48,20 @@ async function createblogsHandler(req, res) {
 
 async function updateblogsHandler(req, res) {
   try {
+    const { _id, ...updatedData } = req.body;
+    const options = { new: true };
+    if (
+      !updatedData.title ||
+      !updatedData.metatitle ||
+      !updatedData.metadescription ||
+      !updatedData.keywords ||
+      !updatedData.content
+    ) {
+      errorResponse(res, 404, "Some params are missing");
+      return;
+    }
+    const blog = await blogsmodel.findByIdAndUpdate(_id, updatedData, options);
+    successResponse(res, "successfully updated", blog);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
@@ -59,6 +70,15 @@ async function updateblogsHandler(req, res) {
 
 async function deleteblogsHandler(req, res) {
   try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const blog = await blogsmodel.findByIdAndDelete({ _id: _id });
+    if (!blog) {
+      return errorResponse(res, 404, "blog id not found");
+    }
+    successResponse(res, "successfully deleted");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

@@ -28,7 +28,7 @@ const blogSchema = new Schema(
     },
     published: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   { timestamps: true, versionKey: false }
@@ -44,6 +44,7 @@ blogSchema.pre("save", function (next) {
   const currentTime = currentLocalTimePlusOffset();
   this.createdAt = currentTime;
   this.updatedAt = currentTime;
+  next();
 });
 
 blogSchema.pre("findOneAndUpdate", function (next) {
