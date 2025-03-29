@@ -14,9 +14,9 @@ import usermodel from "../../models/usermodel.js";
 const authRouter = Router();
 
 authRouter.post("/signin", signinHandler);
-// authRouter.post("/forgotpassword", forgetpasswordHandler);
-// authRouter.post("/resetpassword", resetpasswordHandler);
-// authRouter.post("/publictoken", refreshtokenHandler);
+authRouter.post("/forgotpassword", forgetpasswordHandler);
+authRouter.post("/resetpassword", resetpasswordHandler);
+authRouter.post("/publictoken", refreshtokenHandler);
 
 
 export default authRouter;

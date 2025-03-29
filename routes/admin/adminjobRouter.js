@@ -38,8 +38,6 @@ async function createjobHandler(req,res){
         if(!careerjob){
             return errorResponse(res,404,"career job add not properly")
         } 
-      
-
         successResponse(res, "success",careerjob);
     } catch (error) {
         console.log("error",error);

@@ -3,17 +3,15 @@ import admincontactRouter from "./admincontactRouter.js";
 import adminteamRouter from "./adminteamRouter.js";
 import notificationRouter from "./notifiactionRouter.js";
 import adminjobRouter from "./adminjobRouter.js";
-
-
+import adminblogRouter from "./adminblogsRouter.js";
 
 const adminRouter = Router();
 
-adminRouter.use("/contact",admincontactRouter)
+adminRouter.use("/contact", admincontactRouter);
 
-adminRouter.use("/team",adminteamRouter);
-adminRouter.use("/notification",notificationRouter)
-adminRouter.use("/job",adminjobRouter)
+adminRouter.use("/team", adminteamRouter);
+adminRouter.use("/notification", notificationRouter);
+adminRouter.use("/job", adminjobRouter);
+adminRouter.use("/blogs", adminblogRouter);
 
-
-
-export default adminRouter
+export default adminRouter;
