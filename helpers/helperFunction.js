@@ -5,14 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt, { compare } from "bcrypt";
 import axios from "axios";
 import config from "../config.js";
-import crypto from "crypto"
+import crypto from "crypto";
 import usermodel from "../models/usermodel.js";
-
-
 
 const secrectKey = crypto.randomBytes(48).toString("hex");
 
-   
 export function generateAccessToken(id, email, role) {
   const sessionid = createSession(id);
   const encoded_tokenPayload = {
@@ -53,7 +50,6 @@ export async function isAdminMiddleware(req, res, next) {
   }
   next();
 }
-
 
 // auth middleware
 /**
@@ -136,16 +132,14 @@ export async function Admin() {
         lastname: "admin",
         email: email,
         role: "admin",
-        mobile:9966470788 ,
-        password: bcryptPassword("1234")
-       
+        mobile: 9966470788,
+        password: bcryptPassword("1234"),
       });
     } else {
       console.log("admin already exist");
     }
   }
 }
-
 
 export async function GetJobidNumber() {
   const now = new Date();
@@ -171,54 +165,36 @@ export async function GetJobidNumber() {
   return `${prefix}${serialNumber}`;
 }
 
-
 const otpRequestStore = {};
 
 //  Function to check rate limit for OTP requests
-export async function checkRateLimit(email) {
-  const windowMs = 15 * 60 * 1000; // 15 minutes in milliseconds
-  const maxRequests = 5;
-  const now = Date.now();
+// export async function checkRateLimit(email) {
+//   const windowMs = 15 * 60 * 1000; // 15 minutes in milliseconds
+//   const maxRequests = 5;
+//   const now = Date.now();
 
-  // Initialize request count for the mobile number if not exists
-  if (!otpRequestStore[email]) {
-    otpRequestStore[email] = [];
-  }
+//   // Initialize request count for the mobile number if not exists
+//   if (!otpRequestStore[email]) {
+//     otpRequestStore[email] = [];
+//   }
 
-  // Clean up old entries from the store
-  otpRequestStore[email] = otpRequestStore[email].filter((entry) => {
-    return entry.timestamp + windowMs > now;
-  });
+//   // Clean up old entries from the store
+//   otpRequestStore[email] = otpRequestStore[email].filter((entry) => {
+//     return entry.timestamp + windowMs > now;
+//   });
 
-  // Check request count
-  if (otpRequestStore[email].length >= maxRequests) {
-    return false; // Rate limit exceeded
-  }
+//   // Check request count
+//   if (otpRequestStore[email].length >= maxRequests) {
+//     return false; // Rate limit exceeded
+//   }
 
-  // Add current request to the store
-  otpRequestStore[email].push({ timestamp: now });
+//   // Add current request to the store
+//   otpRequestStore[email].push({ timestamp: now });
 
-  return true; // Within rate limit
-}
+//   return true; // Within rate limit
+// }
 
-export async function getnumber(id) {
+export default async function getnumber(id) {
   // console.log(id);
   return id;
-}
-
-export async function getEmailOTP(email) {
-  try {
-    const apikey = config.APIKEY;
-   
-    const emailerUrl = "https://emailer.firstclusive.com";
-
-    const resp = await axios.post(emailerUrl, {
-      apikey,
-      email,
-    });
-    return resp.data.otp;
-  } catch (error) {
-    console.log("otp error", error);
-    return null;
-  }
 }

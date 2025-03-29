@@ -3,12 +3,15 @@ import {
   bcryptPassword,
   comparePassword,
   generateAccessToken,
-  getEmailOTP,
+  // getEmailOTP,
   getSessionData,
   validatetoken,
 } from "../../helpers/helperFunction.js";
-import { errorResponse, successResponse } from "../../helpers/serverResponse.js";
-import { checkRateLimit } from "../../helpers/helperFunction.js";
+import {
+  errorResponse,
+  successResponse,
+} from "../../helpers/serverResponse.js";
+// import { checkRateLimit } from "../../helpers/helperFunction.js";
 import usermodel from "../../models/usermodel.js";
 
 const authRouter = Router();
@@ -17,7 +20,6 @@ authRouter.post("/signin", signinHandler);
 authRouter.post("/forgotpassword", forgetpasswordHandler);
 authRouter.post("/resetpassword", resetpasswordHandler);
 authRouter.post("/publictoken", refreshtokenHandler);
-
 
 export default authRouter;
 
@@ -32,11 +34,11 @@ async function signinHandler(req, res) {
       return errorResponse(res, 404, "email not found");
     }
     const comparepassword = comparePassword(password, users.password);
-  
+
     if (!comparepassword) {
       return errorResponse(res, 404, "invalid password");
     }
- 
+
     const userid = users._id.toString();
 
     const { encoded_token, public_token } = generateAccessToken(
@@ -64,15 +66,15 @@ async function forgetpasswordHandler(req, res) {
       errorResponse(res, 400, "email id not found");
       return;
     }
-    const isWithinRateLimit = await checkRateLimit(email);
-    if (!isWithinRateLimit) {
-      return errorResponse(
-        res,
-        429,
-        "Too many requests, please try again later"
-      );
-    }
-    usersotp.tokenotp = await getEmailOTP(email);
+    // const isWithinRateLimit = await checkRateLimit(email);
+    // if (!isWithinRateLimit) {
+    //   return errorResponse(
+    //     res,
+    //     429,
+    //     "Too many requests, please try again later"
+    //   );
+    // }
+    // usersotp.tokenotp = await getEmailOTP(email);
     await usersotp.save();
 
     successResponse(res, "OTP successfully sent");
@@ -137,4 +139,3 @@ async function refreshtokenHandler(req, res) {
     errorResponse(res, 401, "refresh token expired, signin");
   }
 }
-

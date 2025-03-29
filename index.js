@@ -54,15 +54,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.use(
-  "/api/upload",
-  authMiddleware,
-  express.static(path.join("..", "uploads"))
-);
-app.use("/api/pdf", authMiddleware, express.static(path.join("..", "pdfs")));
+app.use("/api/pdf", authMiddleware, express.static("./pdfs"));
 app.use("/api/client", clientRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", authMiddleware, isAdminMiddleware, adminRouter);
+app.use("/api/uploads", authMiddleware, express.static("./uploads"));
 
 if (prod) {
   app.use("/", express.static(config.FRONTEND_PATH));
@@ -81,8 +77,8 @@ app.use("*", (req, res) => {
 
 dbConnect()
   .then(() => {
+    Admin();
     app.listen(port, () => {
-      Admin();
       console.log(`server is listening at ${port}`);
     });
   })

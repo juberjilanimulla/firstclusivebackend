@@ -3,14 +3,14 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import getnumber from "../../helpers/helperFunction.js";
 import fs from "fs";
 import mongoose from "mongoose";
 import {
   errorResponse,
   successResponse,
 } from "../../helpers/serverResponse.js";
-import teamModel from "../../models/teammodel.js";
+import blogsmodel from "../../models/blogsmodel.js";
+import getnumber from "../../helpers/helperFunction.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,7 +28,7 @@ function checkFileType(file, cb) {
   }
 }
 
-// Configure multer for single file upload
+// Configure multer for direct file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "../../../uploads");
@@ -50,11 +50,12 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   },
-}).single("profileimg"); // Single image upload
+}).single("coverimage");
 
-const imgprofileuploadRouter = Router();
+const coverimageuploadRouter = Router();
 
-imgprofileuploadRouter.post("/:id", async (req, res) => {
+coverimageuploadRouter.post("/:id", async (req, res) => {
+  // Use upload middleware
   upload(req, res, async (err) => {
     if (err) {
       return errorResponse(res, 400, err.message || "Upload error");
@@ -65,25 +66,25 @@ imgprofileuploadRouter.post("/:id", async (req, res) => {
     }
 
     try {
-      const teamId = req.params.id.trim();
+      const blogid = req.params.id.trim();
 
-      if (!mongoose.Types.ObjectId.isValid(teamId)) {
-        return errorResponse(res, 400, "Invalid team ID");
+      if (!mongoose.Types.ObjectId.isValid(blogid)) {
+        return errorResponse(res, 400, "Invalid blog ID");
       }
 
-      const filename = req.file.filename; // Get the uploaded filename
+      const filename = req.file.filename;
 
-      const team = await teamModel.findByIdAndUpdate(
-        teamId,
-        { profileimg: filename }, // Update the profile image field
+      const blog = await blogsmodel.findByIdAndUpdate(
+        blogid,
+        { coverimage: filename }, // Update the coverimage field in the blog
         { new: true }
       );
 
-      if (!team) {
-        return errorResponse(res, 404, "Team not found");
+      if (!blog) {
+        return errorResponse(res, 404, "Blog not found");
       }
 
-      return successResponse(res, "Image successfully uploaded", team);
+      return successResponse(res, "Image successfully uploaded", blog);
     } catch (error) {
       console.error("Error:", error.message);
       return errorResponse(res, 500, "Internal server error");
@@ -91,4 +92,4 @@ imgprofileuploadRouter.post("/:id", async (req, res) => {
   });
 });
 
-export default imgprofileuploadRouter;
+export default coverimageuploadRouter;

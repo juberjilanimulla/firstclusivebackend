@@ -4,6 +4,7 @@ import {
   successResponse,
 } from "../../helpers/serverResponse.js";
 import blogsmodel from "../../models/blogsmodel.js";
+import coverimageuploadRouter from "./blogimageRouter.js";
 
 const adminblogRouter = Router();
 
@@ -11,6 +12,7 @@ adminblogRouter.get("/getall", getallblogsHandler);
 adminblogRouter.post("/create", createblogHandler);
 adminblogRouter.post("/update", updateblogsHandler);
 adminblogRouter.post("/delete", deleteblogsHandler);
+adminblogRouter.use("/blogimage", coverimageuploadRouter);
 export default adminblogRouter;
 
 async function getallblogsHandler(req, res) {
