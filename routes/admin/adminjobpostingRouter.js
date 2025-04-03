@@ -3,22 +3,20 @@ import {
   errorResponse,
   successResponse,
 } from "../../helpers/serverResponse.js";
-import jobmodels from "../../models/jobmodel.js";
-import axios from "axios";
+import jobpostingmodel from "../../models/jobpostingmodel.js";
+const adminjobpostingRouter = Router();
 
-const adminjobRouter = Router();
+adminjobpostingRouter.post("/create", createjobpostingHandler);
+adminjobpostingRouter.get("/", getalljobpostingHandler);
+adminjobpostingRouter.post("/update", updatejobpostingHandler);
+adminjobpostingRouter.post("/delete", deletejobpostingHandler);
+adminjobpostingRouter.get("/single", getsinglejobpostingHandler);
 
-adminjobRouter.post("/create", createjobHandler);
-adminjobRouter.get("/", getalljobHandler);
-adminjobRouter.post("/update", updatejobHandler);
-adminjobRouter.post("/delete", deletejobHandler);
-adminjobRouter.get("/single", getsinglejobHandler);
+export default adminjobpostingRouter;
 
-export default adminjobRouter;
-
-async function getalljobHandler(req, res) {
+async function getalljobpostingHandler(req, res) {
   try {
-    const job = await jobmodels.find();
+    const job = await jobpostingmodel.find();
     if (!job) {
       return errorResponse(res, 404, "job not found");
     }
@@ -29,7 +27,7 @@ async function getalljobHandler(req, res) {
   }
 }
 
-async function createjobHandler(req, res) {
+async function createjobpostingHandler(req, res) {
   try {
     const {
       jobtitle,
@@ -60,7 +58,7 @@ async function createjobHandler(req, res) {
       qualifications,
       bonusskills,
     };
-    const careerjob = await jobmodels.create(params);
+    const careerjob = await jobpostingmodel.create(params);
     if (!careerjob) {
       return errorResponse(res, 404, "career job add not properly");
     }
@@ -71,7 +69,7 @@ async function createjobHandler(req, res) {
   }
 }
 
-async function updatejobHandler(req, res) {
+async function updatejobpostingHandler(req, res) {
   try {
     const { _id, ...updatedData } = req.body;
     const options = { new: true };
@@ -87,7 +85,7 @@ async function updatejobHandler(req, res) {
       errorResponse(res, 404, "Some params are missing");
       return;
     }
-    const updated = await jobmodels.findByIdAndUpdate(
+    const updated = await jobpostingmodel.findByIdAndUpdate(
       _id,
       updatedData,
       options
@@ -100,33 +98,31 @@ async function updatejobHandler(req, res) {
   }
 }
 
-async function deletejobHandler(req, res) {
+async function deletejobpostingHandler(req, res) {
   try {
     const { _id } = req.body;
     if (!_id) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const team = await jobmodels.findByIdAndDelete({ _id: _id });
+    const team = await jobpostingmodel.findByIdAndDelete({ _id: _id });
     if (!team) {
       return errorResponse(res, 404, "team id not found");
     }
-    // Delete LinkedIn Job Post
-    const linkedInResponse = await deleteJobOnLinkedIn(_id);
 
-    successResponse(res, "Success", { team, linkedInResponse });
+    successResponse(res, "Success", team);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
   }
 }
 
-async function getsinglejobHandler(req, res) {
+async function getsinglejobpostingHandler(req, res) {
   try {
     const { id } = req.query;
     if (!id) {
       return errorResponse(res, 404, "some params are missing");
     }
-    const data = await jobmodels.findById(id).select(" -_id");
+    const data = await jobpostingmodel.findById(id).select(" -_id");
     if (!data) {
       return errorResponse(res, 404, "id not found");
     }
@@ -135,48 +131,4 @@ async function getsinglejobHandler(req, res) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
   }
-}
-
-async function postJobToLinkedIn(jobData) {
-  const token = "YOUR_LINKEDIN_ACCESS_TOKEN"; // Obtain this token via OAuth
-  const url = "https://api.linkedin.com/v2/jobs";
-
-  const response = await axios.post(url, jobData, {
-    headers: {
-      Authorization: `Bearer ${encoded_token}`,
-      "Content-Type": "application/json",
-      "X-Restli-Protocol-Version": "2.0.0",
-    },
-  });
-
-  return response.data;
-}
-
-async function updateJobOnLinkedIn(jobId, jobData) {
-  const token = "YOUR_LINKEDIN_ACCESS_TOKEN"; // Obtain this token via OAuth
-  const url = `https://api.linkedin.com/v2/jobs/${jobId}`;
-
-  const response = await axios.put(url, jobData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "X-Restli-Protocol-Version": "2.0.0",
-    },
-  });
-
-  return response.data;
-}
-
-async function deleteJobOnLinkedIn(jobId) {
-  const token = "YOUR_LINKEDIN_ACCESS_TOKEN"; // Obtain this token via OAuth
-  const url = `https://api.linkedin.com/v2/jobs/${jobId}`;
-
-  const response = await axios.delete(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "X-Restli-Protocol-Version": "2.0.0",
-    },
-  });
-
-  return response.data;
 }

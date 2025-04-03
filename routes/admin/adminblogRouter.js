@@ -13,6 +13,7 @@ adminblogRouter.post("/create", createblogHandler);
 adminblogRouter.post("/update", updateblogsHandler);
 adminblogRouter.post("/delete", deleteblogsHandler);
 adminblogRouter.post("/singleblog", getsingleblogsHandler);
+
 adminblogRouter.use("/blogimage", coverimageuploadRouter);
 export default adminblogRouter;
 
