@@ -31,7 +31,7 @@ function checkFileType(file, cb) {
 // Configure multer for single file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, "../../../uploads");
+    const uploadPath = path.join(__dirname, "../../uploads");
     fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
     cb(null, uploadPath);
   },

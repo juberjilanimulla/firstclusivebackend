@@ -109,7 +109,7 @@ async function deletejobpostingHandler(req, res) {
       return errorResponse(res, 404, "team id not found");
     }
 
-    successResponse(res, "Success", team);
+    successResponse(res, "Successfuly deleted");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

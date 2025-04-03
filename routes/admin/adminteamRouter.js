@@ -63,7 +63,7 @@ async function getteamHandler(req, res) {
     // Aggregation Pipeline
     const teams = await teamModel.aggregate([
       { $match: matchQuery }, // Apply filters
-    
+
       {
         $addFields: {
           normalizedRole: {
@@ -71,13 +71,16 @@ async function getteamHandler(req, res) {
           },
         },
       },
-    
+
       {
         $addFields: {
           rolePriority: {
             $switch: {
               branches: [
-                { case: { $eq: ["$normalizedRole", "managing director"] }, then: 1 },
+                {
+                  case: { $eq: ["$normalizedRole", "managing director"] },
+                  then: 1,
+                },
                 { case: { $eq: ["$normalizedRole", "director"] }, then: 2 },
                 { case: { $eq: ["$normalizedRole", "hr manager"] }, then: 3 },
                 { case: { $eq: ["$normalizedRole", "manager"] }, then: 4 },
@@ -87,13 +90,13 @@ async function getteamHandler(req, res) {
           },
         },
       },
-    
+
       { $sort: { rolePriority: 1, createdAt: -1 } }, // Sort by priority, then by latest
       { $skip: skip },
       { $limit: limit },
       { $project: { normalizedRole: 0, rolePriority: 0 } }, // Clean up extra fields
     ]);
-    
+
     console.log("teams", teams);
     successResponse(res, "Success", { teams, totalPages });
   } catch (error) {

@@ -57,7 +57,7 @@ app.use((err, req, res, next) => {
 app.use("/api/pdf", authMiddleware, express.static("./pdfs"));
 app.use("/api/client", clientRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/admin", authMiddleware, isAdminMiddleware, adminRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/uploads", express.static("./uploads"));
 
 if (prod) {
