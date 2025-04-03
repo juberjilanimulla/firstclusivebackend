@@ -3,8 +3,6 @@ import { errorResponse } from "./serverResponse.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt, { compare } from "bcrypt";
-import axios from "axios";
-import config from "../config.js";
 import crypto from "crypto";
 import usermodel from "../models/usermodel.js";
 
@@ -165,7 +163,7 @@ export async function GetJobidNumber() {
   return `${prefix}${serialNumber}`;
 }
 
-const otpRequestStore = {};
+// const otpRequestStore = {};
 
 //  Function to check rate limit for OTP requests
 // export async function checkRateLimit(email) {

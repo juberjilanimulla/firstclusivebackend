@@ -12,8 +12,7 @@ const blogSchema = new Schema(
       type: String,
     },
     keywords: {
-      type: [String],
-      default: [],
+      type: String,
     },
     coverimage: {
       type: String,

@@ -63,25 +63,38 @@ async function getteamHandler(req, res) {
     // Aggregation Pipeline
     const teams = await teamModel.aggregate([
       { $match: matchQuery }, // Apply filters
+    
+      {
+        $addFields: {
+          normalizedRole: {
+            $toLower: { $trim: { input: "$role" } },
+          },
+        },
+      },
+    
       {
         $addFields: {
           rolePriority: {
             $switch: {
               branches: [
-                { case: { $eq: ["$role", "Director"] }, then: 1 },
-                { case: { $eq: ["$role", "Manager"] }, then: 2 },
+                { case: { $eq: ["$normalizedRole", "managing director"] }, then: 1 },
+                { case: { $eq: ["$normalizedRole", "director"] }, then: 2 },
+                { case: { $eq: ["$normalizedRole", "hr manager"] }, then: 3 },
+                { case: { $eq: ["$normalizedRole", "manager"] }, then: 4 },
               ],
-              default: 3, // All other roles
+              default: 5, // All other roles
             },
           },
         },
       },
-      { $sort: { rolePriority: 1, createdAt: -1 } }, // Sort by role priority first, then by createdAt (latest first)
-      { $skip: skip }, // Pagination - Skip records
-      { $limit: limit }, // Pagination - Limit records per page
-      { $project: { rolePriority: 0 } }, // Remove rolePriority field from output
+    
+      { $sort: { rolePriority: 1, createdAt: -1 } }, // Sort by priority, then by latest
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { normalizedRole: 0, rolePriority: 0 } }, // Clean up extra fields
     ]);
-
+    
+    console.log("teams", teams);
     successResponse(res, "Success", { teams, totalPages });
   } catch (error) {
     console.error("Error:", error);

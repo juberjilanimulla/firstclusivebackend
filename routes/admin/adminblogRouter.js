@@ -12,6 +12,7 @@ adminblogRouter.get("/getall", getallblogsHandler);
 adminblogRouter.post("/create", createblogHandler);
 adminblogRouter.post("/update", updateblogsHandler);
 adminblogRouter.post("/delete", deleteblogsHandler);
+adminblogRouter.post("/singleblog", getsingleblogsHandler);
 adminblogRouter.use("/blogimage", coverimageuploadRouter);
 export default adminblogRouter;
 
@@ -81,6 +82,21 @@ async function deleteblogsHandler(req, res) {
       return errorResponse(res, 404, "blog id not found");
     }
     successResponse(res, "successfully deleted");
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getsingleblogsHandler(req, res) {
+  try {
+    const { _id } = req.body;
+
+    if (!_id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const blog = await blogsmodel.findById(_id);
+    successResponse(res, "success", blog);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

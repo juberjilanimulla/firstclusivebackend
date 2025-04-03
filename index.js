@@ -58,7 +58,7 @@ app.use("/api/pdf", authMiddleware, express.static("./pdfs"));
 app.use("/api/client", clientRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", authMiddleware, isAdminMiddleware, adminRouter);
-app.use("/api/uploads", authMiddleware, express.static("./uploads"));
+app.use("/api/uploads", express.static("./uploads"));
 
 if (prod) {
   app.use("/", express.static(config.FRONTEND_PATH));
