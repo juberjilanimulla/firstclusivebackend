@@ -4,6 +4,7 @@ import adminteamRouter from "./adminteamRouter.js";
 import notificationRouter from "./notifiactionRouter.js";
 import adminblogRouter from "./adminblogRouter.js";
 import adminjobpostingRouter from "./adminjobpostingRouter.js";
+import admincommentRouter from "./admincommentRouter.js";
 
 const adminRouter = Router();
 
@@ -13,4 +14,5 @@ adminRouter.use("/team", adminteamRouter);
 adminRouter.use("/notification", notificationRouter);
 adminRouter.use("/jobposting", adminjobpostingRouter);
 adminRouter.use("/blogs", adminblogRouter);
+adminRouter.use("/comment", admincommentRouter);
 export default adminRouter;

@@ -5,7 +5,6 @@ import morgan from "morgan";
 import cors from "cors";
 import bodyParser from "body-parser";
 import path from "path";
-import clientRouter from "./routes/client/clientRouter.js";
 import adminRouter from "./routes/admin/adminRouter.js";
 import authRouter from "./routes/auth/authRouter.js";
 import {
@@ -13,6 +12,7 @@ import {
   authMiddleware,
   isAdminMiddleware,
 } from "./helpers/helperFunction.js";
+import userRouter from "./routes/user/userRouter.js";
 
 const app = express();
 const port = config.PORT;
@@ -55,7 +55,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use("/api/pdf", authMiddleware, express.static("./pdfs"));
-app.use("/api/client", clientRouter);
+app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/uploads", express.static("./uploads"));

@@ -1,46 +1,60 @@
 import { Router } from "express";
-import { errorResponse, successResponse } from "../../helpers/serverResponse.js";
+import {
+  errorResponse,
+  successResponse,
+} from "../../helpers/serverResponse.js";
 import contactmodel from "../../models/contactmodel.js";
-
-
+import usermodel from "../../models/usermodel.js";
 
 const admincontactRouter = Router();
 
 export default admincontactRouter;
 
-admincontactRouter.get("/getall",getallcontactHandler);
-admincontactRouter.get("/getsingle/:id",getsinglecontactHandler)
+admincontactRouter.get("/getall", getallcontactHandler);
+admincontactRouter.get("/getsingle/:id", getsinglecontactHandler);
+admincontactRouter.get("/users", getalluserHandler);
 
-
-async function getallcontactHandler(req,res){
-    try {
-        const contact = await contactmodel.find();
-        if(!contact){
-            return errorResponse(res,404,"contact are not present in the database")
-        }
-        successResponse(res,"success",contact)
-    } catch (error) {
-        console.log("error",error);
-        errorResponse(res,500,"internal server error")
+async function getallcontactHandler(req, res) {
+  try {
+    const contact = await contactmodel.find();
+    if (!contact) {
+      return errorResponse(res, 404, "contact are not present in the database");
     }
+    successResponse(res, "success", contact);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
 }
 
-async function getsinglecontactHandler(req,res){
-    try {
-        const contactid = req.params.id;
-       
-        if(!contactid){
-            return errorResponse(res,400,"some params are missing")
-        }
-        const contact = await contactmodel.findById({_id:contactid});
-        if(!contact){
-            return errorResponse(res,404,"contact id not found")
-        }
+async function getsinglecontactHandler(req, res) {
+  try {
+    const contactid = req.params.id;
 
-        successResponse(res,"success",contact)
-    } catch (error) {
-        console.log("error",error);
-        errorResponse(res,500,"internal server error" )
+    if (!contactid) {
+      return errorResponse(res, 400, "some params are missing");
     }
+    const contact = await contactmodel.findById({ _id: contactid });
+    if (!contact) {
+      return errorResponse(res, 404, "contact id not found");
+    }
+
+    successResponse(res, "success", contact);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
 }
 
+async function getalluserHandler(req, res) {
+  try {
+    const users = await usermodel.find();
+    if (!users) {
+      return errorResponse(res, 404, "users not found ");
+    }
+    successResponse(res, "success", users);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
