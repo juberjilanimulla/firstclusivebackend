@@ -25,28 +25,4 @@ async function createcommentHandler(req, res) {
   }
 }
 
-// [
-//     {
-//     $lookup: {
-//       from: "blogs",
-//       localField: "blogid",
-//       foreignField: "_id",
-//       as: "blog"
-//     }
-//     },
-//     {
-//       $unwind:"$blog"
-//     },
-//     {
-//      $project: {
-//        blogid:1,
-//        name:1,
-//        email:1,
-//        mobile:1,
-//        title:"$blog.title",
-//        metadescription:"$blog.metadescription",
-//       description:"$blog.description",
-//        keywords:"$blog.keywords"
-//      }
-//     }
-//   ]
+

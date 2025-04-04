@@ -8,11 +8,12 @@ import coverimageuploadRouter from "./blogimageRouter.js";
 
 const adminblogRouter = Router();
 
-adminblogRouter.get("/getall", getallblogsHandler);
+adminblogRouter.post("/", getallblogsHandler);
 adminblogRouter.post("/create", createblogHandler);
 adminblogRouter.post("/update", updateblogsHandler);
 adminblogRouter.post("/delete", deleteblogsHandler);
 adminblogRouter.post("/singleblog", getsingleblogsHandler);
+adminblogRouter.post("/published/:id", publishedapprovalHandler);
 
 adminblogRouter.use("/blogimage", coverimageuploadRouter);
 export default adminblogRouter;
@@ -98,6 +99,34 @@ async function getsingleblogsHandler(req, res) {
     }
     const blog = await blogsmodel.findById(_id);
     successResponse(res, "success", blog);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function publishedapprovalHandler(req, res) {
+  try {
+    const { publishedid } = req.params;
+    const { published } = req.body;
+    if (typeof published !== "boolean") {
+      return errorResponse(res, 400, "Invalid published status");
+    }
+
+    const updatedBlog = await jobpostingmodel.findByIdAndUpdate(
+      publishedid,
+      { published },
+      { new: true }
+    );
+    if (!updatedBlog) {
+      return errorResponse(res, 404, "blog not found");
+    }
+
+    successResponse(
+      res,
+      "blog post  approval status updated successfully",
+      updatedBlog
+    );
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
