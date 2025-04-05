@@ -25,7 +25,7 @@ export function generateAccessToken(id, email, role) {
     expiresIn: "1m",
   });
   const public_token = jwt.sign(public_tokenPayload, secrectKey, {
-    expiresIn: "1d",
+    expiresIn: "1m",
   });
   return { encoded_token, public_token };
 }
