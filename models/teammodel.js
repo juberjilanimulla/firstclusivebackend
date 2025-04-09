@@ -2,7 +2,10 @@ import { Schema, model } from "mongoose";
 
 const teamSchema = new Schema(
   {
-    name: String,
+    firstName: String,
+    lastName: String,
+    email: String,
+    mobile: String,
     role: String,
     description: String,
     message: String,

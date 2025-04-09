@@ -48,7 +48,13 @@ async function getteamHandler(req, res) {
     // Apply search
     if (search.trim()) {
       const searchRegex = new RegExp(search.trim(), "i");
-      const searchFields = ["name", "description", "role"]; // Adjust based on team schema fields
+      const searchFields = [
+        "firstName",
+        "lastName",
+        "email",
+        "description",
+        "role",
+      ]; // Adjust based on team schema fields
       const searchConditions = searchFields.map((field) => ({
         [field]: { $regex: searchRegex },
       }));
@@ -97,7 +103,6 @@ async function getteamHandler(req, res) {
       { $project: { normalizedRole: 0, rolePriority: 0 } }, // Clean up extra fields
     ]);
 
-    console.log("teams", teams);
     successResponse(res, "Success", { teams, totalPages });
   } catch (error) {
     console.error("Error:", error);
@@ -107,13 +112,25 @@ async function getteamHandler(req, res) {
 
 async function createteamHandler(req, res) {
   try {
-    const { name, role, description, message } = req.body;
+    const { firstName, lastName, email, mobile, role, description, message } =
+      req.body;
 
-    if (!name || !role || !description || !message) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !mobile ||
+      !role ||
+      !description ||
+      !message
+    ) {
       return errorResponse(res, 400, "some params are missing");
     }
     const team = await teamModel.create({
-      name,
+      firstName,
+      lastName,
+      email,
+      mobile,
       role,
       description,
       message,
@@ -133,7 +150,10 @@ async function updateteamHandler(req, res) {
     const { _id, ...updatedData } = req.body;
     const options = { new: true };
     if (
-      !updatedData.name ||
+      !updatedData.firstName ||
+      !updatedData.lastName ||
+      !updatedData.email ||
+      !updatedData.mobile ||
       !updatedData.role ||
       !updatedData.description ||
       !updatedData.message
