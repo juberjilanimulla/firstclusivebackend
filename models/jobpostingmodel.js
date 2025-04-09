@@ -2,15 +2,21 @@ import { Schema, model } from "mongoose";
 
 const jobpostingSchema = new Schema(
   {
-    jobtitle: String,
-    location: String,
-    description: String,
-    companydescription: String,
-    roledescription: String,
-    qualifications: String,
-    bonusskills: String,
+    jobtitle: { type: String, required: true },
+    location: { type: String, required: true },
+    description: { type: String, required: true },
+
+    details: {
+      company_description: { type: String, required: true },
+      role_description: { type: String, required: true },
+      qualifications: [{ type: String }],
+      bonus: [{ type: String }],
+    },
   },
-  { timestamps: true, versionKey: false }
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 function currentLocalTimePlusOffset() {

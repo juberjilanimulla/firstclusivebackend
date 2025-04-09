@@ -27,74 +27,164 @@ async function getalljobpostingHandler(req, res) {
   }
 }
 
+// async function createjobpostingHandler(req, res) {
+//   try {
+//     const {
+//       jobtitle,
+//       description,
+//       location,
+//       companydescription,
+//       roledescription,
+//       qualifications,
+//       bonusskills,
+//     } = req.body;
+//     if (
+//       !jobtitle ||
+//       !description ||
+//       !location ||
+//       !companydescription ||
+//       !roledescription ||
+//       !qualifications ||
+//       !bonusskills
+//     ) {
+//       return errorResponse(res, 400, "some params are missing");
+//     }
+//     const params = {
+//       jobtitle,
+//       description,
+//       location,
+//       companydescription,
+//       roledescription,
+//       qualifications,
+//       bonusskills,
+//     };
+//     const careerjob = await jobpostingmodel.create(params);
+//     if (!careerjob) {
+//       return errorResponse(res, 404, "career job add not properly");
+//     }
+//     successResponse(res, "success", careerjob);
+//   } catch (error) {
+//     console.log("error", error);
+//     errorResponse(res, 500, "internal server error");
+//   }
+// }
 async function createjobpostingHandler(req, res) {
   try {
     const {
       jobtitle,
-      description,
       location,
-      companydescription,
-      roledescription,
-      qualifications,
-      bonusskills,
+      description,
+      details, // <- full object structure
     } = req.body;
+
+    // Validate main fields
+    if (!jobtitle || !location || !description || !details) {
+      return errorResponse(res, 400, "Missing main parameters");
+    }
+
+    // Validate nested details
+    const { company_description, role_description, qualifications, bonus } =
+      details;
+
     if (
-      !jobtitle ||
-      !description ||
-      !location ||
-      !companydescription ||
-      !roledescription ||
-      !qualifications ||
-      !bonusskills
+      !company_description ||
+      !role_description ||
+      !Array.isArray(qualifications) ||
+      !Array.isArray(bonus)
     ) {
-      return errorResponse(res, 400, "some params are missing");
+      return errorResponse(res, 400, "Details object missing required fields");
     }
-    const params = {
+
+    const newJob = await jobpostingmodel.create({
       jobtitle,
-      description,
       location,
-      companydescription,
-      roledescription,
-      qualifications,
-      bonusskills,
-    };
-    const careerjob = await jobpostingmodel.create(params);
-    if (!careerjob) {
-      return errorResponse(res, 404, "career job add not properly");
-    }
-    successResponse(res, "success", careerjob);
+      description,
+      details: {
+        company_description,
+        role_description,
+        qualifications,
+        bonus,
+      },
+    });
+
+    return successResponse(res, "successf", newJob);
   } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
+    console.log("Error", error);
+    return errorResponse(res, 500, "Internal Server Error");
   }
 }
+// async function updatejobpostingHandler(req, res) {
+//   try {
+//     const { _id, ...updatedData } = req.body;
+//     const options = { new: true };
+//     if (
+//       !updatedData.jobtitle ||
+//       !updatedData.description ||
+//       !updatedData.location ||
+//       !updatedData.companydescription ||
+//       !updatedData.roledescription ||
+//       !updatedData.qualifications ||
+//       !updatedData.bonusskills
+//     ) {
+//       errorResponse(res, 404, "Some params are missing");
+//       return;
+//     }
+//     const updated = await jobpostingmodel.findByIdAndUpdate(
+//       _id,
+//       updatedData,
+//       options
+//     );
 
+//     successResponse(res, "success Updated", updated);
+//   } catch (error) {
+//     console.log("error", error);
+//     errorResponse(res, 500, "internal server error");
+//   }
+// }
 async function updatejobpostingHandler(req, res) {
   try {
-    const { _id, ...updatedData } = req.body;
-    const options = { new: true };
-    if (
-      !updatedData.jobtitle ||
-      !updatedData.description ||
-      !updatedData.location ||
-      !updatedData.companydescription ||
-      !updatedData.roledescription ||
-      !updatedData.qualifications ||
-      !updatedData.bonusskills
-    ) {
-      errorResponse(res, 404, "Some params are missing");
-      return;
+    const { _id, jobtitle, location, description, details } = req.body;
+
+    if (!_id || !jobtitle || !location || !description || !details) {
+      return errorResponse(res, 400, "Missing required fields");
     }
-    const updated = await jobpostingmodel.findByIdAndUpdate(
+
+    const { company_description, role_description, qualifications, bonus } =
+      details;
+
+    if (
+      !company_description ||
+      !role_description ||
+      !Array.isArray(qualifications) ||
+      !Array.isArray(bonus)
+    ) {
+      return errorResponse(res, 400, "Details object is incomplete or invalid");
+    }
+
+    const updatedJob = await jobpostingmodel.findByIdAndUpdate(
       _id,
-      updatedData,
-      options
+      {
+        jobtitle,
+        location,
+        description,
+        details: {
+          company_description,
+          role_description,
+          qualifications,
+          bonus,
+        },
+      },
+      { new: true }
     );
 
-    successResponse(res, "success Updated", updated);
+    if (!updatedJob) {
+      return errorResponse(res, 404, "Job posting not found");
+    }
+
+    successResponse(res, "Successfully updated", updatedJob);
   } catch (error) {
     console.log("error", error);
-    errorResponse(res, 500, "internal server error");
+    return errorResponse(res, 500, "Internal Server Error");
   }
 }
 
