@@ -1,40 +1,15 @@
 
 import {Schema,model} from "mongoose";
-import { GetJobidNumber } from "../helpers/helperFunction.js";
 
 const careerSchema = new Schema({
-    jobid:{
-    type: String,
-    unique: true,
-    },
     jobtitle:String,
     description:String,
     companydescription:String,
     roledescription:String,
     qualifications:String,
     bonusskills:String,
-    name:String,
-    email:String,
-    mobile:Number,
-    linkedinlink:String,
-    pdf: {
-      type: String,
-      default: "",
-    },
+    address:String
 },{timestamps:true,versionKey:false})
-
-careerSchema.pre("save", async function (next) {
-    if (!this.jobid) {
-      try {
-        this.jobid = await GetJobidNumber();
-        next();
-      } catch (error) {
-        next(error);
-      }
-    } else {
-      next();
-    }
-  });
 
 function currentLocalTimePlusOffset(){
     const now = new Date();

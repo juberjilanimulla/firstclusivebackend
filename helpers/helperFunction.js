@@ -139,29 +139,29 @@ export async function Admin() {
   }
 }
 
-export async function GetJobidNumber() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
+// export async function GetJobidNumber() {
+//   const now = new Date();
+//   const year = now.getFullYear();
+//   const month = String(now.getMonth() + 1).padStart(2, "0");
 
-  const prefix = `${year}${month}`;
+//   const prefix = `${year}${month}`;
 
-  // Find the highest serial number for the current month
-  const lastproduct = await careermodel
-    .findOne({
-      jobid: new RegExp(`^${prefix}`),
-    })
-    .sort({ jobid: -1 })
-    .exec();
+//   // Find the highest serial number for the current month
+//   const lastproduct = await careermodel
+//     .findOne({
+//       jobid: new RegExp(`^${prefix}`),
+//     })
+//     .sort({ jobid: -1 })
+//     .exec();
 
-  let serialNumber = "0001";
-  if (lastproduct) {
-    const lastSerial = parseInt(lastproduct.jobid.slice(-4), 10);
-    serialNumber = String(lastSerial + 1).padStart(4, "0");
-  }
+//   let serialNumber = "0001";
+//   if (lastproduct) {
+//     const lastSerial = parseInt(lastproduct.jobid.slice(-4), 10);
+//     serialNumber = String(lastSerial + 1).padStart(4, "0");
+//   }
 
-  return `${prefix}${serialNumber}`;
-}
+//   return `${prefix}${serialNumber}`;
+// }
 
 // const otpRequestStore = {};
 
