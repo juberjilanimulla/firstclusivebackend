@@ -8,6 +8,7 @@ const commentSchema = new Schema(
     },
     name: String,
     email: String,
+    message:String,
     mobile: {
       type: String,
       default: "-",

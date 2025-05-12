@@ -60,14 +60,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/uploads", express.static("./uploads"));
 
-if (prod) {
-  app.use("/", express.static(config.FRONTEND_PATH));
-  app.get("/*", (req, res) => {
-    res.sendFile("index.html", { root: config.FRONTEND_PATH });
-  });
 
-  console.log("staring production server");
-}
 
 app.use("*", (req, res) => {
   res.status(403).json({

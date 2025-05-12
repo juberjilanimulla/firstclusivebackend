@@ -8,7 +8,7 @@ import commentmodel from "../../models/commentmodel.js";
 const admincommentRouter = Router();
 
 admincommentRouter.post("/getall", getcommentHandler);
-admincommentRouter.post("/published", publishedapprovalHandler);
+admincommentRouter.post("/published/:id", publishedapprovalHandler);
 
 export default admincommentRouter;
 
@@ -72,13 +72,9 @@ async function getcommentHandler(req, res) {
           name: 1,
           email: 1,
           mobile: 1,
-          title: "$blog.title",
-          metadescription: "$blog.metadescription",
-          description: "$blog.description",
-          keywords: "$blog.keywords",
-          content: "$blog.content",
-          coverimage: "$blog.coverimage",
-          published: "$blog.published",
+          message: 1,
+          createdAt: 1,
+          approved: 1,
         },
       },
       { $sort: sortBy },
@@ -99,13 +95,22 @@ async function getcommentHandler(req, res) {
 
 async function publishedapprovalHandler(req, res) {
   try {
-    const { published } = req.body;
-    if (!published) {
-      return errorResponse(res, 400, "some params are missing");
+    const commentid = req.params.id;
+    const { approved } = req.body;
+
+    if (typeof approved !== "boolean") {
+      return errorResponse(res, 400, "Invalid approved status");
     }
-    if(!published ==="Boolean"){
-      return errorResponse(res,)
-    }  
+    const updatedComment = await commentmodel.findByIdAndUpdate(
+      commentid,
+      { approved },
+      { new: true }
+    );
+
+    if (!updatedComment) {
+      return errorResponse(res, 404, "Comment not found");
+    }
+    return successResponse(res, "success", updatedComment);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
