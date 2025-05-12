@@ -12,7 +12,7 @@ export function generateAccessToken(id, email, role) {
   const sessionid = createSession(id);
   const encoded_tokenPayload = {
     id,
-    email,
+    email, 
     role,
   };
   const public_tokenPayload = {
