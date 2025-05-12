@@ -1,4 +1,3 @@
-import careermodel from "../models/careermodel.js";
 import { errorResponse } from "./serverResponse.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
@@ -12,7 +11,7 @@ export function generateAccessToken(id, email, role) {
   const sessionid = createSession(id);
   const encoded_tokenPayload = {
     id,
-    email, 
+    email,
     role,
   };
   const public_tokenPayload = {

@@ -9,7 +9,7 @@ import {
 } from "../../helpers/serverResponse.js";
 import getnumber from "../../helpers/helperFunction.js";
 import fs from "fs";
-import careermodel from "../../models/careermodel.js";
+import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -69,7 +69,7 @@ cvpdfRouter.post("/:id", (req, res) => {
     try {
       const pdf = req.file.filename;
       const contactId = req.params.id;
-      const updatedContactcv = await careermodel.findByIdAndUpdate(
+      const updatedContactcv = await jobapplicantmodel.findByIdAndUpdate(
         contactId,
         { pdf: pdf },
         { new: true }
@@ -230,7 +230,7 @@ export default cvpdfRouter;
 //           },
 //         });
 //       } catch (permErr) {
-        
+
 //         // console.warn("Permission not granted:", permErr.message);
 //       }
 
