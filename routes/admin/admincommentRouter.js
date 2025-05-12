@@ -69,6 +69,7 @@ async function getcommentHandler(req, res) {
       {
         $project: {
           blogid: 1,
+          blogtitle:"$blog.title",
           name: 1,
           email: 1,
           mobile: 1,
