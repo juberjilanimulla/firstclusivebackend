@@ -12,11 +12,13 @@ const jobpostingSchema = new Schema(
       qualifications: [{ type: String }],
       bonus: [{ type: String }],
     },
+
+    published: {
+      type: Boolean,
+      default: false,
+    },
   },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
+  { timestamps: true, versionKey: false }
 );
 
 function currentLocalTimePlusOffset() {

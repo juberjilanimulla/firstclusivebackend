@@ -11,6 +11,7 @@ adminjobpostingRouter.get("/", getalljobpostingHandler);
 adminjobpostingRouter.post("/update", updatejobpostingHandler);
 adminjobpostingRouter.post("/delete", deletejobpostingHandler);
 adminjobpostingRouter.get("/single", getsinglejobpostingHandler);
+adminjobpostingRouter.post("/published/:id", publishedjobpostingHandler);
 
 export default adminjobpostingRouter;
 
@@ -217,6 +218,30 @@ async function getsinglejobpostingHandler(req, res) {
       return errorResponse(res, 404, "id not found");
     }
     successResponse(res, "Success", data);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function publishedjobpostingHandler(req, res) {
+  try {
+    const jobid = req.params.id;
+    const { published } = req.body;
+
+    if (typeof published !== "boolean") {
+      return errorResponse(res, 400, "Invalid published status");
+    }
+    const job = await jobpostingmodel.findByIdAndUpdate(
+      jobid,
+      { published },
+      { new: true }
+    );
+
+    if (!job) {
+      return errorResponse(res, 404, "job not found");
+    }
+    return successResponse(res, "success", job);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

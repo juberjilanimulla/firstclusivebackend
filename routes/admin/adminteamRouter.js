@@ -30,7 +30,7 @@ async function getteamHandler(req, res) {
   try {
     const { pageno = 0, filterBy = {}, search = "" } = req.body;
 
-    const limit = 10; // Number of items per page
+    const limit = 20; // Number of items per page
     const skip = pageno * limit;
 
     // Base query for teams

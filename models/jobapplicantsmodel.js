@@ -4,7 +4,7 @@ const jobapplicantSchema = new Schema(
   {
     jobid: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "career",
+      ref: "jobposting",
     },
     fullname: String,
     email: String,
