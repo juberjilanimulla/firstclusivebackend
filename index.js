@@ -54,11 +54,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.use("/api/pdf", express.static("./pdfs"));
+app.use("/api/admin/pdf", express.static("./pdfs"));
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
-app.use("/api/uploads", express.static("./uploads"));
+app.use("/api/profileimg", express.static("./uploads"));
 
 app.use("*", (req, res) => {
   res.status(403).json({
