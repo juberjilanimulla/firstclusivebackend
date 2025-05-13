@@ -21,7 +21,11 @@ async function createjobapplicantsHandler(req, res) {
       return errorResponse(res, 400, "some params are missing");
     }
 
-    const existingjobapplicants = await jobapplicantmodel.findOne({ email });
+    const existingjobapplicant = await jobapplicantmodel.findOne({
+      jobid,
+      email,
+    });
+
     if (existingjobapplicants) {
       return errorResponse(res, 400, "You have already submitted the form");
     }
