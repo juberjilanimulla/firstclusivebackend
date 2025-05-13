@@ -5,6 +5,7 @@ import {
 } from "../../helpers/serverResponse.js";
 import cvpdfRouter from "./uploadcv.js";
 import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
+import jobpostingmodel from "../../models/jobpostingmodel.js";
 
 const jobapplicantRouter = Router();
 
@@ -21,13 +22,15 @@ async function createjobapplicantsHandler(req, res) {
       return errorResponse(res, 400, "some params are missing");
     }
 
-    const existingjobapplicant = await jobapplicantmodel.findOne({
-      jobid,
-      email,
-    });
+    const jobExists = await jobpostingmodel.findById({ _id: jobid });
+    if (!jobExists) {
+      return errorResponse(res, 404, "Job ID does not exist");
+    }
 
-    if (existingjobapplicants) {
-      return errorResponse(res, 400, "You have already submitted the form");
+    // Check if user already applied for the same job
+    const alreadyApplied = await jobapplicantmodel.findOne({ jobid, email });
+    if (alreadyApplied) {
+      return errorResponse(res, 400, "You have already applied for this job");
     }
 
     const jobapplicant = await jobapplicantmodel.create({
