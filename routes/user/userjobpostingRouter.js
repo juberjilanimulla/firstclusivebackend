@@ -13,7 +13,9 @@ export default userjobpostingRouter;
 
 async function getalljobpostingHandler(req, res) {
   try {
-    const jobposting = await jobpostingmodel.find();
+    const jobposting = await jobpostingmodel.find({
+      published: true,
+    });
     successResponse(res, "success", jobposting);
   } catch (error) {
     console.log("error", error);
