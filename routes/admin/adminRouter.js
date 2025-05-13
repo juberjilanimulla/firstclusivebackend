@@ -10,11 +10,10 @@ import adminjobapplicantsRouter from "./adminjobapplicantRouter.js";
 const adminRouter = Router();
 
 adminRouter.use("/contact", admincontactRouter);
-
 adminRouter.use("/team", adminteamRouter);
 adminRouter.use("/notification", notificationRouter);
 adminRouter.use("/jobposting", adminjobpostingRouter);
 adminRouter.use("/blogs", adminblogRouter);
 adminRouter.use("/comment", admincommentRouter);
-adminRouter.use('/jobapplicants',adminjobapplicantsRouter)
+adminRouter.use("/jobapplicants", adminjobapplicantsRouter);
 export default adminRouter;
