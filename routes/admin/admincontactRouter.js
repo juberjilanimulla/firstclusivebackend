@@ -10,8 +10,8 @@ const admincontactRouter = Router();
 export default admincontactRouter;
 
 admincontactRouter.get("/getall", getallcontactHandler);
+admincontactRouter.post("/delete", deletecontactHandler);
 admincontactRouter.get("/:id", getsinglecontactHandler);
-admincontactRouter.get("/delete/:id", deletecontactHandler);
 
 async function getallcontactHandler(req, res) {
   try {
@@ -45,7 +45,7 @@ async function getsinglecontactHandler(req, res) {
 
 async function deletecontactHandler(req, res) {
   try {
-    const { id } = req.param.id;
+    const { id } = req.body;
     if (!id) {
       return errorResponse(res, 400, "some params are missing");
     }
