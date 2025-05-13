@@ -3,29 +3,30 @@ import {
   errorResponse,
   successResponse,
 } from "../../helpers/serverResponse.js";
-
 import cvpdfRouter from "./uploadcv.js";
 import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
 
-const careerRouter = Router();
+const jobapplicantRouter = Router();
 
-careerRouter.post("/create", createcareerHandler);
-careerRouter.use("/uploadcv", cvpdfRouter);
-export default careerRouter;
+jobapplicantRouter.post("/create", createjobapplicantsHandler);
+jobapplicantRouter.use("/uploadcv", cvpdfRouter);
 
-async function createcareerHandler(req, res) {
+export default jobapplicantRouter;
+
+async function createjobapplicantsHandler(req, res) {
   try {
-    const { jobid, fullname, email, contact, yearofexperience } = req.body;
+    const { jobid, fullname, email, contact, yearofexperience, termsaccepted } =
+      req.body;
     if (!jobid || !fullname || !email || !contact || !yearofexperience) {
       return errorResponse(res, 400, "some params are missing");
     }
 
-    const existingCareer = await careermodel.findOne({ email });
-    if (existingCareer) {
+    const existingjobapplicants = await jobapplicantmodel.findOne({ email });
+    if (existingjobapplicants) {
       return errorResponse(res, 400, "You have already submitted the form");
     }
 
-    const career = await jobapplicantmodel.create({
+    const jobapplicant = await jobapplicantmodel.create({
       jobid,
       fullname,
       email,
@@ -33,7 +34,7 @@ async function createcareerHandler(req, res) {
       yearofexperience,
       termsaccepted,
     });
-    successResponse(res, "success", career);
+    successResponse(res, "success", jobapplicant);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

@@ -99,8 +99,8 @@ export default cvpdfRouter;
 //   successResponse,
 //   errorResponse,
 // } from "../../helpers/serverResponse.js";
-// import { getnumber } from "../../helpers/helperFunction.js";
-// import jobapplicantsmodel from "../../model/jobapplicantsmodel.js";
+// import getnumber from "../../helpers/helperFunction.js";
+// import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
 
 // dotenv.config();
 
@@ -117,7 +117,7 @@ export default cvpdfRouter;
 //   filename: async (req, file, cb) => {
 //     try {
 //       const pid = req.params.id;
-//       const applicant = await jobapplicantsmodel.findById(pid);
+//       const applicant = await jobapplicantmodel.findById(pid);
 //       const fullName = applicant?.name || "Applicant";
 //       const cleanName = fullName.replace(/\s+/g, "_").replace(/[^\w\-]/g, "");
 //       const pdfnumber = await getnumber(pid);
@@ -152,7 +152,7 @@ export default cvpdfRouter;
 
 // // Google Drive Auth Setup
 // const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-// const { client_secret, client_id, redirect_uris } = credentials.installed;
+// const { client_secret, client_id, redirect_uris } = credentials.web;
 
 // const oAuth2Client = new google.auth.OAuth2(
 //   client_id,
@@ -174,7 +174,7 @@ export default cvpdfRouter;
 //     const tempFilePath = req.file.path;
 
 //     try {
-//       const applicant = await jobapplicantsmodel.findById(req.params.id);
+//       const applicant = await jobapplicantmodel.findById(req.params.id);
 //       if (!applicant) {
 //         fs.unlinkSync(tempFilePath);
 //         return errorResponse(res, 404, "Applicant not found");
@@ -203,7 +203,8 @@ export default cvpdfRouter;
 //       const mimeTypeMap = {
 //         ".pdf": "application/pdf",
 //         ".doc": "application/msword",
-//         ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+//         ".docx":
+//           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 //       };
 
 //       const media = {
@@ -230,7 +231,6 @@ export default cvpdfRouter;
 //           },
 //         });
 //       } catch (permErr) {
-
 //         // console.warn("Permission not granted:", permErr.message);
 //       }
 

@@ -7,8 +7,9 @@ import commentmodel from "../../models/commentmodel.js";
 
 const commentRouter = Router();
 
-commentRouter.post("/getall",getcommentHandler)
+commentRouter.post("/getall", getcommentHandler);
 commentRouter.post("/create", createcommentHandler);
+commentRouter.post("/delete", deletecommentHandler);
 export default commentRouter;
 
 async function createcommentHandler(req, res) {
@@ -90,5 +91,21 @@ async function getcommentHandler(req, res) {
   } catch (error) {
     console.error("Error fetching comments:", error);
     errorResponse(res, 500, "Internal server error");
+  }
+}
+
+async function deletecommentHandler(req, res) {
+  try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const comment = await commentmodel.findByIdAndDelete({ _id: _id });
+    if (!comment) {
+      return errorResponse(res, 404, "comment id not found");
+    }
+    successResponse(res, "success", comment);
+  } catch (error) {
+    console.log("error", error);
   }
 }

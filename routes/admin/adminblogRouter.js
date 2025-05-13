@@ -22,7 +22,7 @@ export default adminblogRouter;
 async function getallblogsHandler(req, res) {
   try {
     const { pageno = 0, filterBy = {}, sortby = {}, search = "" } = req.body;
-    const limit = 5;
+    const limit = 10;
     const skip = pageno * limit;
 
     let query = {};

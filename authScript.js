@@ -5,7 +5,7 @@ import { google } from "googleapis";
 
 // Load your OAuth 2.0 credentials from credentials.json
 const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-const { client_secret, client_id, redirect_uris } = credentials.installed;
+const { client_secret, client_id, redirect_uris } = credentials.web;
 
 const oAuth2Client = new google.auth.OAuth2(
   client_id,

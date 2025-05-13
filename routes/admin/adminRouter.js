@@ -5,6 +5,7 @@ import notificationRouter from "./notifiactionRouter.js";
 import adminblogRouter from "./adminblogRouter.js";
 import adminjobpostingRouter from "./adminjobpostingRouter.js";
 import admincommentRouter from "./admincommentRouter.js";
+import adminjobapplicantsRouter from "./adminjobapplicantRouter.js";
 
 const adminRouter = Router();
 
@@ -15,4 +16,5 @@ adminRouter.use("/notification", notificationRouter);
 adminRouter.use("/jobposting", adminjobpostingRouter);
 adminRouter.use("/blogs", adminblogRouter);
 adminRouter.use("/comment", admincommentRouter);
+adminRouter.use('/jobapplicants',adminjobapplicantsRouter)
 export default adminRouter;
