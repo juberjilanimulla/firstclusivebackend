@@ -11,6 +11,7 @@ export default admincontactRouter;
 
 admincontactRouter.get("/getall", getallcontactHandler);
 admincontactRouter.get("/:id", getsinglecontactHandler);
+admincontactRouter.get("/delete/:id", deletecontactHandler);
 
 async function getallcontactHandler(req, res) {
   try {
@@ -36,6 +37,20 @@ async function getsinglecontactHandler(req, res) {
       return errorResponse(res, 404, "contact id not found");
     }
     successResponse(res, "success", contact);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function deletecontactHandler(req, res) {
+  try {
+    const { id } = req.param.id;
+    if (!id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const contact = await contactmodel.findByIdAndDelete({ _id: id });
+    successResponse(res, "success");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

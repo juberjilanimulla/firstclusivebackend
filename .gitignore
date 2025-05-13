@@ -151,3 +151,6 @@ token.json
 #.json
 credentials.json
 token.json
+
+#uploads
+/uploads
