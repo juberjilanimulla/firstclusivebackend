@@ -59,13 +59,13 @@
 
 // pdfuploadRouter.post("/:id", async (req, res) => {
 //   const jobapplicantid = req.params.id.trim();
- 
+
 //   if (!mongoose.Types.ObjectId.isValid(jobapplicantid)) {
 //     return errorResponse(res, 400, "Invalid product ID");
 //   }
 
 //   const jobapplicantexist = await jobapplicantmodel.findById(jobapplicantid);
- 
+
 //   if (!jobapplicantexist) {
 //     return errorResponse(res, 404, "job applicants not found");
 //   }
@@ -86,7 +86,7 @@
 //         { pdf: pdfFile },
 //         { new: true }
 //       );
-      
+
 //       return successResponse(res, "PDF uploaded successfully", jobapplicant);
 //     } catch (error) {
 //       console.log("Error:", error.message);
@@ -104,7 +104,10 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import path from "path";
 import fs from "fs";
-import { successResponse,errorResponse } from "../../helpers/serverResponse.js";
+import {
+  successResponse,
+  errorResponse,
+} from "../../helpers/serverResponse.js";
 import dotenv from "dotenv";
 import getnumber from "../../helpers/helperFunction.js";
 import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
@@ -181,7 +184,7 @@ const upload = multer({
 
 // Google Drive setup
 const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-const { client_secret, client_id, redirect_uris } = credentials.web;
+const { client_secret, client_id, redirect_uris } = credentials.installed;
 
 const oAuth2Client = new google.auth.OAuth2(
   client_id,
