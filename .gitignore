@@ -133,7 +133,8 @@ dist
 #test
 test*
 # test2.js
-
+#upload folder
+/uploads
 /logs.env
 .env
 
@@ -141,7 +142,8 @@ test*
 recruiterData.json
 credentials.json
 token.json
-  
+#pdf
+/pdfs  
 #.json
 credentials.json
 token.json
