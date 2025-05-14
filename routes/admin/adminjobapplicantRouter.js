@@ -4,6 +4,8 @@ import {
   successResponse,
 } from "../../helpers/serverResponse.js";
 import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
+import { google } from "googleapis";
+import fs from "fs";
 
 const adminjobapplicantsRouter = Router();
 
@@ -11,6 +13,14 @@ adminjobapplicantsRouter.post("/getall", getalljobapplicantsHandler);
 adminjobapplicantsRouter.post("/delete", deletejobapplicantsHandler);
 
 export default adminjobapplicantsRouter;
+const credentials = JSON.parse(fs.readFileSync("credentials.json"));
+const token = JSON.parse(fs.readFileSync("token.json"));
+
+const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
+const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+oAuth2Client.setCredentials(token);
+
+const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
 async function getalljobapplicantsHandler(req, res) {
   try {
@@ -116,7 +126,21 @@ async function deletejobapplicantsHandler(req, res) {
     if (!jobapplicants) {
       return errorResponse(res, 404, "jobapplicants id not found");
     }
-    successResponse(res, "successfully deleted");
+    // Extract file ID from Google Drive link
+    const pdfUrl = jobapplicants.pdf;
+    const fileIdMatch = pdfUrl.match(/\/d\/(.+?)\//);
+    const fileId = fileIdMatch ? fileIdMatch[1] : null;
+
+    if (fileId) {
+      try {
+        await drive.files.delete({ fileId });
+        console.log("Google Drive file deleted:", fileId);
+      } catch (err) {
+        console.warn("Failed to delete file from Drive:", err.message);
+      }
+    }
+
+    return successResponse(res, "Successfully deleted");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
