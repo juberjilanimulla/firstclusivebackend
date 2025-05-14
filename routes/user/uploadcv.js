@@ -269,11 +269,11 @@ cvpdfRouter.post("/:id", (req, res) => {
       const publicUrl = uploaded.data.webViewLink;
 
       // 6. Save to MongoDB
-      applicant.resume = publicUrl;
+      applicant.pdf = publicUrl;
       await applicant.save();
 
       fs.unlinkSync(tempFilePath);
-      successResponse(res, "Resume uploaded to Google Drive", applicant);
+      successResponse(res, "pdf uploaded to Google Drive", applicant);
     } catch (error) {
       console.log("Upload error:", error);
       errorResponse(res, 500, "Internal server error during upload");
