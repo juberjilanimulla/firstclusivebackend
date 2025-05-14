@@ -5,6 +5,8 @@ import {
 } from "../../helpers/serverResponse.js";
 import teamModel from "../../models/teammodel.js";
 import imgprofileuploadRouter from "./uploadimageRouter.js";
+import { google } from "googleapis";
+import fs from "fs";
 
 const adminteamRouter = Router();
 
@@ -14,8 +16,21 @@ adminteamRouter.use("/uploadimage", imgprofileuploadRouter);
 adminteamRouter.post("/update", updateteamHandler);
 adminteamRouter.post("/delete", deleteteamHandler);
 adminteamRouter.get("/single", getsingleteamHandler);
-
+adminteamRouter.post("/delete/profileimg", deleteprofileimgHandler);
 export default adminteamRouter;
+
+const credentials = JSON.parse(fs.readFileSync("credentials.json"));
+const token = JSON.parse(fs.readFileSync("token.json"));
+
+const { client_secret, client_id, redirect_uris } = credentials.installed;
+const oAuth2Client = new google.auth.OAuth2(
+  client_id,
+  client_secret,
+  redirect_uris[0]
+);
+oAuth2Client.setCredentials(token);
+
+const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
 // async function getteamHandler(req,res){
 //     try {
@@ -177,14 +192,37 @@ async function updateteamHandler(req, res) {
 async function deleteteamHandler(req, res) {
   try {
     const { _id } = req.body;
+
     if (!_id) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const team = await teamModel.findByIdAndDelete({ _id: _id });
+
+    // Find team first (to access profileimg URL before deletion)
+    const team = await teamModel.findById(_id);
     if (!team) {
       return errorResponse(res, 404, "team id not found");
     }
-    successResponse(res, "Success");
+
+    // Attempt to delete associated Google Drive image
+    const profileImgUrl = team.profileimg;
+
+    // Extract fileId from Google Drive URL: https://drive.google.com/file/d/<FILE_ID>/view
+    const match = profileImgUrl?.match(/\/d\/(.+?)\//);
+    const fileId = match ? match[1] : null;
+
+    if (fileId) {
+      try {
+        await drive.files.delete({ fileId });
+        console.log("Google Drive profile image deleted:", fileId);
+      } catch (err) {
+        console.warn("Google Drive image deletion failed:", err.message);
+      }
+    }
+
+    // Now delete the team from MongoDB
+    await teamModel.findByIdAndDelete(_id);
+
+    successResponse(res, "Team and profile image successfully deleted");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
@@ -205,5 +243,41 @@ async function getsingleteamHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function deleteprofileimgHandler(req, res) {
+  try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "Team ID is required");
+    }
+
+    const team = await teamModel.findById(_id);
+    if (!team) {
+      return errorResponse(res, 404, "Team not found");
+    }
+
+    const profileImgUrl = team.profileimg;
+    const match = profileImgUrl?.match(/\/d\/(.+?)\//);
+    const fileId = match ? match[1] : null;
+
+    if (fileId) {
+      try {
+        await drive.files.delete({ fileId });
+        console.log("Google Drive profile image deleted:", fileId);
+      } catch (err) {
+        console.warn("Failed to delete profile image from Drive:", err.message);
+      }
+    }
+
+    // Clear the profile image URL in the DB
+    team.profileimg = "";
+    await team.save();
+
+    return successResponse(res, "Team image deleted successfully", team);
+  } catch (error) {
+    console.error("error", error);
+    return errorResponse(res, 500, "Internal server error");
   }
 }
