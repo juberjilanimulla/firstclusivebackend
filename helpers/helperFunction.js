@@ -125,8 +125,7 @@ export async function Admin() {
     const exist = await usermodel.findOne({ email });
     if (!exist) {
       await usermodel.create({
-        firstname: "admin",
-        lastname: "admin",
+        name: "admin",
         email: email,
         role: "admin",
         mobile: 9966470788,
