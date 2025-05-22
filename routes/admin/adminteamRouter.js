@@ -7,6 +7,7 @@ import teamModel from "../../models/teammodel.js";
 import imgprofileuploadRouter from "./uploadimageRouter.js";
 import { google } from "googleapis";
 import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
 
 const adminteamRouter = Router();
 
@@ -203,19 +204,19 @@ async function deleteteamHandler(req, res) {
       return errorResponse(res, 404, "team id not found");
     }
 
-    // Attempt to delete associated Google Drive image
     const profileImgUrl = team.profileimg;
-
-    // Extract fileId from Google Drive URL: https://drive.google.com/file/d/<FILE_ID>/view
-    const match = profileImgUrl?.match(/\/d\/(.+?)\//);
+    const match = profileImgUrl?.match(/\/v\d+\/(.+)\.(jpg|jpeg|png|webp)/);
     const fileId = match ? match[1] : null;
 
     if (fileId) {
       try {
-        await drive.files.delete({ fileId });
-        console.log("Google Drive profile image deleted:", fileId);
+        await cloudinary.uploader.destroy(fileId);
+        console.log("cloudinary image deleted:", fileId);
       } catch (err) {
-        console.warn("Google Drive image deletion failed:", err.message);
+        console.warn(
+          "Failed to delete profile image from cloudinary:",
+          err.message
+        );
       }
     }
 
@@ -259,15 +260,18 @@ async function deleteprofileimgHandler(req, res) {
     }
 
     const profileImgUrl = team.profileimg;
-    const match = profileImgUrl?.match(/\/d\/(.+?)\//);
+    const match = profileImgUrl?.match(/\/v\d+\/(.+)\.(jpg|jpeg|png|webp)/);
     const fileId = match ? match[1] : null;
 
     if (fileId) {
       try {
-        await drive.files.delete({ fileId });
-        console.log("Google Drive profile image deleted:", fileId);
+        await cloudinary.uploader.destroy(fileId);
+        console.log("cloudinary image deleted:", fileId);
       } catch (err) {
-        console.warn("Failed to delete profile image from Drive:", err.message);
+        console.warn(
+          "Failed to delete profile image from cloudinary:",
+          err.message
+        );
       }
     }
 

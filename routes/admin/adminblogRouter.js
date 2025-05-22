@@ -126,9 +126,31 @@ async function deleteblogsHandler(req, res) {
     if (!_id) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const blog = await blogsmodel.findByIdAndDelete({ _id: _id });
+    const blog = await blogsmodel.findById(_id);
     if (!blog) {
       return errorResponse(res, 404, "blog id not found");
+    } // Extract public_id from Cloudinary URL
+    const imageUrl = blog.coverimage;
+    let publicId = null;
+
+    if (imageUrl) {
+      const match = imageUrl.match(/\/v\d+\/(.+?)\.(jpg|jpeg|png|gif|webp)/);
+      if (match) {
+        publicId = match[1];
+      }
+    }
+
+    // Delete blog from DB
+    await blogsmodel.findByIdAndDelete(_id);
+
+    // Delete image from Cloudinary
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+        console.log("Cloudinary image deleted:", publicId);
+      } catch (cloudErr) {
+        // console.log("Cloudinary image deletion failed:", cloudErr.message);
+      }
     }
     successResponse(res, "successfully deleted");
   } catch (error) {
