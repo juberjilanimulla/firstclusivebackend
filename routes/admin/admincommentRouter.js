@@ -9,6 +9,7 @@ const admincommentRouter = Router();
 
 admincommentRouter.post("/getall", getcommentHandler);
 admincommentRouter.post("/published/:id", publishedapprovalHandler);
+admincommentRouter.delete("/delete", deletecommitHandler);
 
 export default admincommentRouter;
 
@@ -69,7 +70,7 @@ async function getcommentHandler(req, res) {
       {
         $project: {
           blogid: 1,
-          blogtitle:"$blog.title",
+          blogtitle: "$blog.title",
           name: 1,
           email: 1,
           mobile: 1,
@@ -112,6 +113,23 @@ async function publishedapprovalHandler(req, res) {
       return errorResponse(res, 404, "Comment not found");
     }
     return successResponse(res, "success", updatedComment);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function deletecommitHandler(req, res) {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const comment = await commentmodel.findByIdAndDelete({ _id: id });
+    if (!comment) {
+      return errorResponse(res, 404, "comment id not found");
+    }
+    successResponse(res, "success");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
