@@ -104,10 +104,14 @@ async function getteamHandler(req, res) {
                   then: 1,
                 },
                 { case: { $eq: ["$normalizedRole", "director"] }, then: 2 },
-                { case: { $eq: ["$normalizedRole", "hr manager"] }, then: 3 },
-                { case: { $eq: ["$normalizedRole", "manager"] }, then: 4 },
+                {
+                  case: { $eq: ["$normalizedRole", "executive director"] },
+                  then: 3,
+                }, // Added this
+                { case: { $eq: ["$normalizedRole", "hr manager"] }, then: 4 },
+                { case: { $eq: ["$normalizedRole", "manager"] }, then: 5 },
               ],
-              default: 5, // All other roles
+              default: 6, // All other roles
             },
           },
         },
