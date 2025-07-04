@@ -15,7 +15,7 @@ admincontactRouter.get("/:id", getsinglecontactHandler);
 
 async function getallcontactHandler(req, res) {
   try {
-    const contact = await contactmodel.find();
+    const contact = await contactmodel.find().sort({ createdAt: -1 });
     if (!contact) {
       return errorResponse(res, 404, "contact are not present in the database");
     }
