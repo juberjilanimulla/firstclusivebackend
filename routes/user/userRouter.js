@@ -4,6 +4,7 @@ import commentRouter from "./commentRouter.js";
 import jobapplicantRouter from "./jobapplicantRouter.js";
 import userjobpostingRouter from "./userjobpostingRouter.js";
 import userblogRouter from "./userblogRouter.js";
+import userlogoRouter from "./userlogoRouter.js";
 
 const userRouter = Router();
 
@@ -14,3 +15,4 @@ userRouter.use("/comment", commentRouter);
 userRouter.use("/jobapplicant", jobapplicantRouter);
 userRouter.use("/jobposting", userjobpostingRouter);
 userRouter.use("/blog", userblogRouter);
+userRouter.use("/logo", userlogoRouter);
