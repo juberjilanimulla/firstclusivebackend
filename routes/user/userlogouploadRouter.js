@@ -64,7 +64,8 @@ const upload = multer({
 
 const logouploadimageRouter = Router();
 
-logouploadimageRouter.post("/", async (req, res) => {
+logouploadimageRouter.post("/:id", async (req, res) => {
+  // Use upload middleware
   upload(req, res, async (err) => {
     if (err) {
       return errorResponse(res, 400, err.message || "Upload error");
@@ -75,24 +76,31 @@ logouploadimageRouter.post("/", async (req, res) => {
     }
 
     try {
+      const logoid = req.params.id.trim();
+
+      if (!mongoose.Types.ObjectId.isValid(logoid)) {
+        fs.unlinkSync(req.file.path);
+        return errorResponse(res, 400, "Invalid blog ID");
+      }
+
       // Upload to Cloudinary
       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
         folder: "firstclusive/logo-images",
       });
 
-      // Clean up local file
+      // Clean up temp file
       fs.unlinkSync(req.file.path);
 
-      // Create a new logo entry with image URL
-      const newLogo = await logomodel.create({
-        uploadimage: uploadResult.secure_url,
-      });
-
-      return successResponse(
-        res,
-        "Image uploaded and saved successfully",
-        newLogo
+      const logo = await logomodel.findByIdAndUpdate(
+        logoid,
+        { uploadimage: uploadResult.secure_url },
+        { new: true }
       );
+      if (!logo) {
+        return errorResponse(res, 404, "logo not found");
+      }
+
+      return successResponse(res, "Image successfully uploaded", logo);
     } catch (error) {
       console.error("Error:", error.message);
       return errorResponse(res, 500, "Internal server error");
