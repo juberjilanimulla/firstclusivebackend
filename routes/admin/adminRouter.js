@@ -5,6 +5,7 @@ import adminblogRouter from "./adminblogRouter.js";
 import adminjobpostingRouter from "./adminjobpostingRouter.js";
 import admincommentRouter from "./admincommentRouter.js";
 import adminjobapplicantsRouter from "./adminjobapplicantRouter.js";
+import adminlogoRouter from "./adminlogoRouter.js";
 
 const adminRouter = Router();
 
@@ -14,4 +15,6 @@ adminRouter.use("/jobposting", adminjobpostingRouter);
 adminRouter.use("/blogs", adminblogRouter);
 adminRouter.use("/comment", admincommentRouter);
 adminRouter.use("/jobapplicants", adminjobapplicantsRouter);
+adminRouter.use("/logo", adminlogoRouter);
+
 export default adminRouter;
