@@ -3,7 +3,7 @@ import {
   errorResponse,
   successResponse,
 } from "../../helpers/serverResponse.js";
-import logomodel from "../../model/logomodel.js";
+import logomodel from "../../models/logomodel.js";
 
 const adminlogoRouter = Router();
 
