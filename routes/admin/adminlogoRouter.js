@@ -4,6 +4,7 @@ import {
   successResponse,
 } from "../../helpers/serverResponse.js";
 import logomodel from "../../models/logomodel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const adminlogoRouter = Router();
 
@@ -73,37 +74,48 @@ async function deletelogoHandler(req, res) {
   try {
     const { _id } = req.body;
     if (!_id) {
-      return errorResponse(res, 400, "some params are missing");
+      return errorResponse(res, 400, "Missing logo ID");
     }
+
     const logo = await logomodel.findById(_id);
     if (!logo) {
-      return errorResponse(res, 404, "logo id not found");
-    } // Extract public_id from Cloudinary URL
-    const imageUrl = logo.uploadimage;
-    let publicId = null;
-
-    if (imageUrl) {
-      const match = imageUrl.match(/\/v\d+\/(.+?)\.(jpg|jpeg|png|gif|webp)/);
-      if (match) {
-        publicId = match[1];
-      }
+      return errorResponse(res, 404, "Logo not found");
     }
 
-    // Delete blog from DB
-    await logomodel.findByIdAndDelete(_id);
+    const imageUrls = logo.uploadimage || [];
+    if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
+      return errorResponse(res, 400, "No images found to delete.");
+    }
 
-    // Delete image from Cloudinary
-    if (publicId) {
+    // Extract full public_id (including folder) directly from the URL
+    const publicIds = imageUrls
+      .map((url) => {
+        const match = url.match(
+          /upload\/(?:v\d+\/)?(.+?)\.(jpg|jpeg|png|gif|webp)/
+        );
+        return match ? match[1] : null;
+      })
+      .filter(Boolean); // remove nulls
+
+    // Delete each image from Cloudinary
+    for (const publicId of publicIds) {
       try {
         await cloudinary.uploader.destroy(publicId);
-        console.log("Cloudinary image deleted:", publicId);
-      } catch (cloudErr) {
-        // console.log("Cloudinary image deletion failed:", cloudErr.message);
+      } catch (err) {
+        console.error(
+          "❌ Failed to delete from Cloudinary:",
+          publicId,
+          err.message
+        );
       }
     }
-    successResponse(res, "successfully deleted");
+
+    // Delete logo document from DB
+    await logomodel.findByIdAndDelete(_id);
+
+    return successResponse(res, "Successfully deleted logo and all images");
   } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
+    console.error(" Delete error:", error.message);
+    return errorResponse(res, 500, "Internal server error");
   }
 }

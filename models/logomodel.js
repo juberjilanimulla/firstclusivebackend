@@ -46,10 +46,12 @@ const logoSchema = new Schema(
       type: String,
       default: "",
     },
-    uploadimage: {
-      type: String,
-      default: "",
-    },
+    uploadimage: [
+      {
+        type: String,
+        default: "",
+      },
+    ],
     likeustoknow: {
       type: String,
       default: "",
