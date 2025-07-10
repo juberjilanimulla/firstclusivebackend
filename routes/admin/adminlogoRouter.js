@@ -82,10 +82,8 @@ async function deletelogoHandler(req, res) {
       return errorResponse(res, 404, "Logo not found");
     }
 
-    const imageUrls = logo.uploadimage || [];
-    if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
-      return errorResponse(res, 400, "No images found to delete.");
-    }
+   
+    const imageUrls = Array.isArray(logo.uploadimage) ? logo.uploadimage : [];
 
     // Extract full public_id (including folder) directly from the URL
     const publicIds = imageUrls
@@ -98,16 +96,16 @@ async function deletelogoHandler(req, res) {
       .filter(Boolean); // remove nulls
 
     // Delete each image from Cloudinary
-    for (const publicId of publicIds) {
-      try {
-        await cloudinary.uploader.destroy(publicId);
-      } catch (err) {
-        console.error(
-          "❌ Failed to delete from Cloudinary:",
-          publicId,
-          err.message
-        );
+    if (publicIds.length > 0) {
+      for (const publicId of publicIds) {
+        try {
+          await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+          console.error("Failed to delete from Cloudinary:", publicId, err.message);
+        }
       }
+    } else {
+      console.log("No images to delete in Cloudinary.");
     }
 
     // Delete logo document from DB
