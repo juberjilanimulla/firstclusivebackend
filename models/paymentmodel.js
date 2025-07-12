@@ -17,6 +17,7 @@ const paymentSchema = new Schema(
       default: "pending",
     },
     paymentid: String,
+    razorpay_payment_id: String,
   },
   { timestamps: true, versionKey: false }
 );
