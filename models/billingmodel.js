@@ -16,6 +16,9 @@ const billingSchema = new Schema(
     mobile: {
       type: String,
     },
+    state: {
+      type: String,
+    },
   },
   { timestamps: true, versionKey: false }
 );

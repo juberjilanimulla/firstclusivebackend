@@ -13,11 +13,11 @@ export default userbillingRouter;
 
 async function createbillingHandler(req, res) {
   try {
-    const { serviceid, name, email, mobile } = req.body;
-    if (!serviceid || !name || !email || !mobile) {
+    const { serviceid, name, email, mobile, state } = req.body;
+    if (!serviceid || !name || !email || !mobile || !state) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const params = { serviceid, name, email, mobile };
+    const params = { serviceid, name, email, mobile, state };
     const billing = await billingmodel.create(params);
     successResponse(res, "success", billing);
   } catch (error) {
