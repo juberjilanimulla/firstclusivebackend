@@ -19,6 +19,10 @@ const billingSchema = new Schema(
     state: {
       type: String,
     },
+    gstin: String,
+    gstname: String,
+    gstaddress: String,
+    gststate: String,
   },
   { timestamps: true, versionKey: false }
 );
