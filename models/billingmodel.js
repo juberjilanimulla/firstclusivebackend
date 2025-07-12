@@ -3,10 +3,12 @@ import mongoose from "mongoose";
 
 const billingSchema = new Schema(
   {
-    serviceid: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "service",
-    },
+    serviceid: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "service",
+      },
+    ],
     name: {
       type: String,
     },
