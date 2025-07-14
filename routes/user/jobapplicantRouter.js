@@ -33,7 +33,6 @@ async function createjobapplicantsHandler(req, res) {
       !email ||
       !contact ||
       !yearofexperience ||
-      !currentctc ||
       !expectedctc
     ) {
       return errorResponse(res, 400, "some params are missing");
