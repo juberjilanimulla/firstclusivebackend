@@ -83,24 +83,30 @@ async function getallpaymentHandler(req, res) {
           as: "service",
         },
       },
-      {
-        $unwind: "$service",
-      },
+    
       {
         $match: query,
       },
       {
         $project: {
-          name: "$billing.name",
-          email: "$billing.email",
-          mobile: "$billing.mobile",
-          servicename: "$service.servicename",
-          servicecost: "$service.servicecost",
-          gstcost: "$service.gstcost",
-          totalamount: "$service.totalamount",
           method: 1,
           status: 1,
           createdAt: 1,
+          name: "$billing.name",
+          email: "$billing.email",
+          mobile: "$billing.mobile",
+          services: {
+            $map: {
+              input: "$service",
+              as: "s",
+              in: {
+                servicename: "$$s.servicename",
+                servicecost: "$$s.servicecost",
+                gstcost: "$$s.gstcost",
+                totalamount: "$$s.totalamount",
+              },
+            },
+          },
         },
       },
       { $sort: sortBy },
