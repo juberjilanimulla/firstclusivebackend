@@ -147,8 +147,6 @@ async function createjobpostingHandler(req, res) {
     const {
       jobtitle,
       tagline,
-      jobtype,
-      employmenttype,
       experiencerequired,
       roledescription,
       responsibilities,
@@ -161,8 +159,6 @@ async function createjobpostingHandler(req, res) {
     if (
       !jobtitle ||
       !tagline ||
-      !jobtype ||
-      !employmenttype ||
       !experiencerequired ||
       !roledescription ||
       !Array.isArray(responsibilities) ||
@@ -175,8 +171,6 @@ async function createjobpostingHandler(req, res) {
     const newJob = await jobpostingmodel.create({
       jobtitle,
       tagline,
-      jobtype,
-      employmenttype,
       experiencerequired,
       roledescription,
       responsibilities,
@@ -243,8 +237,6 @@ async function updatejobpostingHandler(req, res) {
       _id,
       jobtitle,
       tagline,
-      jobtype,
-      employmenttype,
       experiencerequired,
       roledescription,
       responsibilities,
@@ -257,8 +249,6 @@ async function updatejobpostingHandler(req, res) {
       !_id ||
       !jobtitle ||
       !tagline ||
-      !jobtype ||
-      !employmenttype ||
       !experiencerequired ||
       !roledescription ||
       !Array.isArray(responsibilities) ||
