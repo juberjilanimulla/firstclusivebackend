@@ -10,6 +10,9 @@ const jobapplicantSchema = new Schema(
     email: String,
     contact: String,
     yearofexperience: String,
+    currentctc: String,
+    expectedctc: String,
+    linkedinurl: String,
     pdf: {
       type: String,
       default: "",

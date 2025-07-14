@@ -147,8 +147,6 @@ async function createjobpostingHandler(req, res) {
     const {
       jobtitle,
       tagline,
-      companydescription,
-      location,
       jobtype,
       employmenttype,
       experiencerequired,
@@ -156,9 +154,6 @@ async function createjobpostingHandler(req, res) {
       responsibilities,
       requiredskills,
       qualifications,
-      workinghours,
-      perksandbenefits,
-      contactinfo,
       published,
     } = req.body;
 
@@ -166,16 +161,13 @@ async function createjobpostingHandler(req, res) {
     if (
       !jobtitle ||
       !tagline ||
-      !companydescription ||
-      !location ||
       !jobtype ||
       !employmenttype ||
       !experiencerequired ||
       !roledescription ||
       !Array.isArray(responsibilities) ||
       !Array.isArray(requiredskills) ||
-      !Array.isArray(qualifications) ||
-      !workinghours
+      !Array.isArray(qualifications)
     ) {
       return errorResponse(res, 400, "Missing required fields");
     }
@@ -183,8 +175,6 @@ async function createjobpostingHandler(req, res) {
     const newJob = await jobpostingmodel.create({
       jobtitle,
       tagline,
-      companydescription,
-      location,
       jobtype,
       employmenttype,
       experiencerequired,
@@ -192,9 +182,6 @@ async function createjobpostingHandler(req, res) {
       responsibilities,
       requiredskills,
       qualifications,
-      workinghours,
-      perksandbenefits: perksandbenefits || [],
-      contactinfo: contactinfo || "",
       published: published || false,
     });
 
@@ -256,8 +243,6 @@ async function updatejobpostingHandler(req, res) {
       _id,
       jobtitle,
       tagline,
-      companydescription,
-      location,
       jobtype,
       employmenttype,
       experiencerequired,
@@ -265,9 +250,6 @@ async function updatejobpostingHandler(req, res) {
       responsibilities,
       requiredskills,
       qualifications,
-      workinghours,
-      perksandbenefits,
-      contactinfo,
     } = req.body;
 
     // Validate required fields
@@ -275,16 +257,13 @@ async function updatejobpostingHandler(req, res) {
       !_id ||
       !jobtitle ||
       !tagline ||
-      !companydescription ||
-      !location ||
       !jobtype ||
       !employmenttype ||
       !experiencerequired ||
       !roledescription ||
       !Array.isArray(responsibilities) ||
       !Array.isArray(requiredskills) ||
-      !Array.isArray(qualifications) ||
-      !workinghours
+      !Array.isArray(qualifications)
     ) {
       return errorResponse(res, 400, "Missing or invalid required fields");
     }
@@ -294,8 +273,6 @@ async function updatejobpostingHandler(req, res) {
       {
         jobtitle,
         tagline,
-        companydescription,
-        location,
         jobtype,
         employmenttype,
         experiencerequired,
@@ -303,9 +280,6 @@ async function updatejobpostingHandler(req, res) {
         responsibilities,
         requiredskills,
         qualifications,
-        workinghours,
-        perksandbenefits: perksandbenefits || [],
-        contactinfo: contactinfo || "",
       },
       { new: true }
     );

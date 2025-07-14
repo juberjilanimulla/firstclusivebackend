@@ -16,9 +16,26 @@ export default jobapplicantRouter;
 
 async function createjobapplicantsHandler(req, res) {
   try {
-    const { jobid, fullname, email, contact, yearofexperience, termsaccepted } =
-      req.body;
-    if (!jobid || !fullname || !email || !contact || !yearofexperience) {
+    const {
+      jobid,
+      fullname,
+      email,
+      contact,
+      yearofexperience,
+      currentctc,
+      expectedctc,
+      linkedinurl,
+      termsaccepted,
+    } = req.body;
+    if (
+      !jobid ||
+      !fullname ||
+      !email ||
+      !contact ||
+      !yearofexperience ||
+      !currentctc ||
+      !expectedctc
+    ) {
       return errorResponse(res, 400, "some params are missing");
     }
 
@@ -39,6 +56,7 @@ async function createjobapplicantsHandler(req, res) {
       email,
       contact,
       yearofexperience,
+      
       termsaccepted,
     });
     successResponse(res, "success", jobapplicant);
