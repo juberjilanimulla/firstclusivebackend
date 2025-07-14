@@ -56,7 +56,9 @@ async function createjobapplicantsHandler(req, res) {
       email,
       contact,
       yearofexperience,
-      
+      currentctc,
+      expectedctc,
+      linkedinurl,
       termsaccepted,
     });
     successResponse(res, "success", jobapplicant);
