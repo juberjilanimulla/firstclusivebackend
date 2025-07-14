@@ -263,8 +263,6 @@ async function updatejobpostingHandler(req, res) {
       {
         jobtitle,
         tagline,
-        jobtype,
-        employmenttype,
         experiencerequired,
         roledescription,
         responsibilities,
