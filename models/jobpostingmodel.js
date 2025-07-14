@@ -3,16 +3,27 @@ import { Schema, model } from "mongoose";
 const jobpostingSchema = new Schema(
   {
     jobtitle: { type: String, required: true },
+    tagline: { type: String, required: true },
+    companydescription: { type: String, required: true },
     location: { type: String, required: true },
-    description: { type: String, required: true },
-
-    details: {
-      company_description: { type: String, required: true },
-      role_description: { type: String, required: true },
-      qualifications: [{ type: String }],
-      bonus: [{ type: String }],
+    jobtype: {
+      type: String,
+      enum: ["On-Site", "Remote", "Hybrid"],
+      default: "On-Site",
     },
-
+    employmenttype: {
+      type: String,
+      enum: ["Full-Time", "Part-Time", "Contractual"],
+      default: "Full-Time",
+    },
+    experiencerequired: { type: String },
+    roledescription: { type: String },
+    responsibilities: [{ type: String, required: true }],
+    requiredskills: [{ type: String, required: true }],
+    qualifications: [{ type: String, required: true }],
+    workinghours: { type: String, required: true },
+    perksandbenefits: [{ type: String }],
+    contactinfo: { type: String },
     published: {
       type: Boolean,
       default: false,

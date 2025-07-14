@@ -69,51 +69,51 @@ async function getalljobpostingHandler(req, res) {
 //     errorResponse(res, 500, "internal server error");
 //   }
 // }
-async function createjobpostingHandler(req, res) {
-  try {
-    const {
-      jobtitle,
-      location,
-      description,
-      details, // <- full object structure
-    } = req.body;
+// async function createjobpostingHandler(req, res) {
+//   try {
+//     const {
+//       jobtitle,
+//       location,
+//       description,
+//       details, // <- full object structure
+//     } = req.body;
 
-    // Validate main fields
-    if (!jobtitle || !location || !description || !details) {
-      return errorResponse(res, 400, "Missing main parameters");
-    }
+//     // Validate main fields
+//     if (!jobtitle || !location || !description || !details) {
+//       return errorResponse(res, 400, "Missing main parameters");
+//     }
 
-    // Validate nested details
-    const { company_description, role_description, qualifications, bonus } =
-      details;
+//     // Validate nested details
+//     const { company_description, role_description, qualifications, bonus } =
+//       details;
 
-    if (
-      !company_description ||
-      !role_description ||
-      !Array.isArray(qualifications) ||
-      !Array.isArray(bonus)
-    ) {
-      return errorResponse(res, 400, "Details object missing required fields");
-    }
+//     if (
+//       !company_description ||
+//       !role_description ||
+//       !Array.isArray(qualifications) ||
+//       !Array.isArray(bonus)
+//     ) {
+//       return errorResponse(res, 400, "Details object missing required fields");
+//     }
 
-    const newJob = await jobpostingmodel.create({
-      jobtitle,
-      location,
-      description,
-      details: {
-        company_description,
-        role_description,
-        qualifications,
-        bonus,
-      },
-    });
+//     const newJob = await jobpostingmodel.create({
+//       jobtitle,
+//       location,
+//       description,
+//       details: {
+//         company_description,
+//         role_description,
+//         qualifications,
+//         bonus,
+//       },
+//     });
 
-    return successResponse(res, "successf", newJob);
-  } catch (error) {
-    console.log("Error", error);
-    return errorResponse(res, 500, "Internal Server Error");
-  }
-}
+//     return successResponse(res, "successf", newJob);
+//   } catch (error) {
+//     console.log("Error", error);
+//     return errorResponse(res, 500, "Internal Server Error");
+//   }
+// }
 // async function updatejobpostingHandler(req, res) {
 //   try {
 //     const { _id, ...updatedData } = req.body;
@@ -142,38 +142,170 @@ async function createjobpostingHandler(req, res) {
 //     errorResponse(res, 500, "internal server error");
 //   }
 // }
-async function updatejobpostingHandler(req, res) {
+async function createjobpostingHandler(req, res) {
   try {
-    const { _id, jobtitle, location, description, details } = req.body;
+    const {
+      jobtitle,
+      tagline,
+      companydescription,
+      location,
+      jobtype,
+      employmenttype,
+      experiencerequired,
+      roledescription,
+      responsibilities,
+      requiredskills,
+      qualifications,
+      workinghours,
+      perksandbenefits,
+      contactinfo,
+      published,
+    } = req.body;
 
-    if (!_id || !jobtitle || !location || !description || !details) {
+    // Validate required fields
+    if (
+      !jobtitle ||
+      !tagline ||
+      !companydescription ||
+      !location ||
+      !jobtype ||
+      !employmenttype ||
+      !experiencerequired ||
+      !roledescription ||
+      !Array.isArray(responsibilities) ||
+      !Array.isArray(requiredskills) ||
+      !Array.isArray(qualifications) ||
+      !workinghours
+    ) {
       return errorResponse(res, 400, "Missing required fields");
     }
 
-    const { company_description, role_description, qualifications, bonus } =
-      details;
+    const newJob = await jobpostingmodel.create({
+      jobtitle,
+      tagline,
+      companydescription,
+      location,
+      jobtype,
+      employmenttype,
+      experiencerequired,
+      roledescription,
+      responsibilities,
+      requiredskills,
+      qualifications,
+      workinghours,
+      perksandbenefits: perksandbenefits || [],
+      contactinfo: contactinfo || "",
+      published: published || false,
+    });
 
+    return successResponse(res, "Job posting created successfully", newJob);
+  } catch (error) {
+    console.error("Error creating job posting:", error);
+    return errorResponse(res, 500, "Internal Server Error");
+  }
+}
+// async function updatejobpostingHandler(req, res) {
+//   try {
+//     const { _id, jobtitle, location, description, details } = req.body;
+
+//     if (!_id || !jobtitle || !location || !description || !details) {
+//       return errorResponse(res, 400, "Missing required fields");
+//     }
+
+//     const { company_description, role_description, qualifications, bonus } =
+//       details;
+
+//     if (
+//       !company_description ||
+//       !role_description ||
+//       !Array.isArray(qualifications) ||
+//       !Array.isArray(bonus)
+//     ) {
+//       return errorResponse(res, 400, "Details object is incomplete or invalid");
+//     }
+
+//     const updatedJob = await jobpostingmodel.findByIdAndUpdate(
+//       _id,
+//       {
+//         jobtitle,
+//         location,
+//         description,
+//         details: {
+//           company_description,
+//           role_description,
+//           qualifications,
+//           bonus,
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     if (!updatedJob) {
+//       return errorResponse(res, 404, "Job posting not found");
+//     }
+
+//     successResponse(res, "Successfully updated", updatedJob);
+//   } catch (error) {
+//     console.log("error", error);
+//     return errorResponse(res, 500, "Internal Server Error");
+//   }
+// }
+async function updatejobpostingHandler(req, res) {
+  try {
+    const {
+      _id,
+      jobtitle,
+      tagline,
+      companydescription,
+      location,
+      jobtype,
+      employmenttype,
+      experiencerequired,
+      roledescription,
+      responsibilities,
+      requiredskills,
+      qualifications,
+      workinghours,
+      perksandbenefits,
+      contactinfo,
+    } = req.body;
+
+    // Validate required fields
     if (
-      !company_description ||
-      !role_description ||
+      !_id ||
+      !jobtitle ||
+      !tagline ||
+      !companydescription ||
+      !location ||
+      !jobtype ||
+      !employmenttype ||
+      !experiencerequired ||
+      !roledescription ||
+      !Array.isArray(responsibilities) ||
+      !Array.isArray(requiredskills) ||
       !Array.isArray(qualifications) ||
-      !Array.isArray(bonus)
+      !workinghours
     ) {
-      return errorResponse(res, 400, "Details object is incomplete or invalid");
+      return errorResponse(res, 400, "Missing or invalid required fields");
     }
 
     const updatedJob = await jobpostingmodel.findByIdAndUpdate(
       _id,
       {
         jobtitle,
+        tagline,
+        companydescription,
         location,
-        description,
-        details: {
-          company_description,
-          role_description,
-          qualifications,
-          bonus,
-        },
+        jobtype,
+        employmenttype,
+        experiencerequired,
+        roledescription,
+        responsibilities,
+        requiredskills,
+        qualifications,
+        workinghours,
+        perksandbenefits: perksandbenefits || [],
+        contactinfo: contactinfo || "",
       },
       { new: true }
     );
@@ -182,13 +314,12 @@ async function updatejobpostingHandler(req, res) {
       return errorResponse(res, 404, "Job posting not found");
     }
 
-    successResponse(res, "Successfully updated", updatedJob);
+    return successResponse(res, "Job posting updated successfully", updatedJob);
   } catch (error) {
-    console.log("error", error);
+    console.error("Error updating job posting:", error);
     return errorResponse(res, 500, "Internal Server Error");
   }
 }
-
 async function deletejobpostingHandler(req, res) {
   try {
     const { _id } = req.body;
