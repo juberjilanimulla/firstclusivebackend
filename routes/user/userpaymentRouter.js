@@ -33,7 +33,7 @@ async function createpaymentHandler(req, res) {
     };
 
     const order = await razorpay.orders.create(options);
-    console.log("order", order);
+
     const payment = await paymentmodel.create({
       billingid,
       method,
@@ -41,7 +41,7 @@ async function createpaymentHandler(req, res) {
       status: "pending",
       paymentid: order.id,
     });
-    console.log("payment", payment);
+  
     successResponse(res, "order_created", {
       order_id: order.id,
       amount: order.amount,
