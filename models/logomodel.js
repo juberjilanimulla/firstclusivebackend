@@ -2,6 +2,10 @@ import { Schema, model } from "mongoose";
 
 const logoSchema = new Schema(
   {
+    paymentid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "payment",
+    },
     name: String,
     email: String,
     mobile: String,

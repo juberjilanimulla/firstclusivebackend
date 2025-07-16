@@ -5,6 +5,7 @@ import {
 } from "../../helpers/serverResponse.js";
 import logomodel from "../../models/logomodel.js";
 import logouploadimageRouter from "./userlogouploadRouter.js";
+import paymentmodel from "../../models/paymentmodel.js";
 
 const userlogoRouter = Router();
 
@@ -16,6 +17,7 @@ export default userlogoRouter;
 async function createbusinesscardHandler(req, res) {
   try {
     const {
+      paymentid,
       name,
       email,
       mobile,
@@ -32,10 +34,25 @@ async function createbusinesscardHandler(req, res) {
       specificidea,
       likeustoknow,
     } = req.body;
-    if (!name || !email || !mobile) {
-      return errorResponse(res, 400, "this field are required");
+    if (!paymentid || !name || !email || !mobile) {
+      return errorResponse(
+        res,
+        400,
+        "Payment ID, Name, Email, Mobile are required"
+      );
     }
+    const payment = await paymentmodel.findById({ _id });
+    if (!payment || !payment.razorpay_payment_id) {
+      return errorResponse(res, 403, "Payment not completed");
+    }
+
+    const formalready = await logomodel.findOne(paymentid);
+    if (formalready) {
+      return errorResponse(res, 403, "Form already submitted");
+    }
+
     const params = {
+      paymentid,
       name,
       email,
       mobile,
