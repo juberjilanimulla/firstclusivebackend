@@ -41,12 +41,14 @@ async function createbusinesscardHandler(req, res) {
         "Payment ID, Name, Email, Mobile are required"
       );
     }
-    const payment = await paymentmodel.findById({ _id });
-    if (!payment || !payment.razorpay_payment_id) {
+    const payment = await paymentmodel.findById(paymentid);
+
+    if (!payment || !payment.razorpay_payment_id || !payment.status==="completed") {
       return errorResponse(res, 403, "Payment not completed");
     }
 
-    const formalready = await logomodel.findOne(paymentid);
+    const formalready = await logomodel.findOne({ paymentid });
+  
     if (formalready) {
       return errorResponse(res, 403, "Form already submitted");
     }
