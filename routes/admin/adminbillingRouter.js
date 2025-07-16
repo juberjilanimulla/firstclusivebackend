@@ -8,6 +8,7 @@ import {
 const adminbillingRouter = Router();
 
 adminbillingRouter.post("/", getallbillingHandler);
+adminbillingRouter.delete("/delete", deletebillingHandler);
 
 export default adminbillingRouter;
 
@@ -105,5 +106,19 @@ async function getallbillingHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function deletebillingHandler(req, res) {
+  try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const billing = await billingmodel.findByIdAndDelete({ _id: _id });
+    successResponse(res, "successfully deleted");
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal servere error");
   }
 }
