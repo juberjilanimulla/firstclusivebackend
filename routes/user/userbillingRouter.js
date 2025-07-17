@@ -23,8 +23,16 @@ async function createbillingHandler(req, res) {
       gstin,
       gstaddress,
       gststate,
+      termsandconditions,
     } = req.body;
-    if (!serviceid || !name || !email || !mobile || !state) {
+    if (
+      !serviceid ||
+      !name ||
+      !email ||
+      !mobile ||
+      !state ||
+      !termsandconditions
+    ) {
       return errorResponse(res, 400, "some params are missing");
     }
     const params = {
@@ -37,6 +45,7 @@ async function createbillingHandler(req, res) {
       gstname,
       gstaddress,
       gststate,
+      termsandconditions,
     };
     const billing = await billingmodel.create(params);
     successResponse(res, "success", billing);
