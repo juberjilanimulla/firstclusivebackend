@@ -87,7 +87,7 @@ async function verifypaymentHandler(req, res) {
       // send branding confirmation email
       await sendPaymentConfirmationEmail({
         toEmail: updated.email,
-        toName: updated.name,
+        toName: updated.name || "Customer",
         amount: updated.amount,
         method: actualMethod,
       });

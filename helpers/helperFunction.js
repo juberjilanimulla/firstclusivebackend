@@ -196,8 +196,6 @@ export default async function getnumber(id) {
   return id;
 }
 
-
-
 const mailjetClient = mailjet.apiConnect(
   process.env.MAILJET_API_KEY,
   process.env.MAILJET_SECRET_KEY
@@ -209,6 +207,11 @@ export const sendPaymentConfirmationEmail = async ({
   amount,
   method,
 }) => {
+  if (!toEmail || !toEmail.includes("@")) {
+    console.error(" Invalid or missing recipient email:", toEmail);
+    return;
+  }
+
   try {
     const result = await mailjetClient
       .post("send", { version: "v3.1" })
