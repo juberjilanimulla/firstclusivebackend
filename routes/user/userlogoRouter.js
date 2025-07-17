@@ -9,6 +9,7 @@ import paymentmodel from "../../models/paymentmodel.js";
 
 const userlogoRouter = Router();
 
+userlogoRouter.get("/checkpayment/:paymentid", getlogocheckHandler);
 userlogoRouter.post("/create", createbusinesscardHandler);
 userlogoRouter.use("/uploadlogo", logouploadimageRouter);
 
@@ -80,5 +81,48 @@ async function createbusinesscardHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getlogocheckHandler(req, res) {
+  try {
+    const { paymentid } = req.params;
+
+    if (!paymentid) {
+      return errorResponse(res, 400, "Payment ID is required");
+    }
+
+    // 1. Check payment exists
+    const payment = await paymentmodel.findById(paymentid);
+    if (!payment) {
+      return errorResponse(res, 404, "Payment record not found");
+    }
+
+    // 2. Check payment status
+    if (payment.status !== "completed" || !payment.razorpay_payment_id) {
+      return successResponse(res, "Payment not completed", {
+        status: "pending",
+        message: "Please complete your payment to access the form",
+      });
+    }
+
+    // 3. Check if form already submitted
+    const existingForm = await logomodel.findOne({ paymentid });
+    if (existingForm) {
+      return successResponse(res, "Form already submitted", {
+        status: "already_submitted",
+        message: "Form already submitted for this payment",
+      });
+    }
+
+    // 4. Allow access
+    return successResponse(res, "Payment verified. You can now fill the form", {
+      status: "completed",
+      paymentid,
+      message: "Access granted",
+    });
+  } catch (error) {
+    console.error("Form access error:", error);
+    return errorResponse(res, 500, "Internal Server Error");
   }
 }
