@@ -9,6 +9,7 @@ import adminlogoRouter from "./adminlogoRouter.js";
 import adminpaymentRouter from "./adminpaymentRouter.js";
 import adminserviceRouter from "./adminserviceRouter.js";
 import adminbillingRouter from "./adminbillingRouter.js";
+import admincouponRouter from "./admincouponRouter.js";
 
 const adminRouter = Router();
 
@@ -22,5 +23,6 @@ adminRouter.use("/logo", adminlogoRouter);
 adminRouter.use("/billing", adminbillingRouter);
 adminRouter.use("/payment", adminpaymentRouter);
 adminRouter.use("/service", adminserviceRouter);
+adminRouter.use("/coupon", admincouponRouter);
 
 export default adminRouter;

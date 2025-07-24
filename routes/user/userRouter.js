@@ -7,6 +7,7 @@ import userblogRouter from "./userblogRouter.js";
 import userlogoRouter from "./userlogoRouter.js";
 import userbillingRouter from "./userbillingRouter.js";
 import userpaymentRouter from "./userpaymentRouter.js";
+import usercouponRouter from "./usercouponRouter.js";
 
 const userRouter = Router();
 
@@ -20,3 +21,4 @@ userRouter.use("/blog", userblogRouter);
 userRouter.use("/logo", userlogoRouter);
 userRouter.use("/billing", userbillingRouter);
 userRouter.use("/payment", userpaymentRouter);
+userRouter.use("/coupon", usercouponRouter);
