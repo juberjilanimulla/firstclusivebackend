@@ -11,6 +11,7 @@ admincouponRouter.get("/", getallcouponHandler);
 admincouponRouter.post("/create", createcouponHandler);
 admincouponRouter.delete("/delete", deletecouponHandler);
 admincouponRouter.post("/active", activecouponHandler);
+admincouponRouter.put("/update", updatecouponHandler);
 
 export default admincouponRouter;
 
@@ -76,6 +77,31 @@ async function activecouponHandler(req, res) {
       { new: true }
     );
     successResponse(res, "success", updated);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function updatecouponHandler(req, res) {
+  try {
+    const { _id, ...updatedData } = req.body;
+    const options = { new: true };
+    if (
+      !updatedData.code ||
+      !updatedData.discounttype ||
+      !updatedData.discountvalue ||
+      !updatedData.expiresat
+    ) {
+      errorResponse(res, 404, "Some params are missing");
+      return;
+    }
+    const coupon = await couponmodel.findByIdAndUpdate(
+      _id,
+      updatedData,
+      options
+    );
+    successResponse(res, "successfully updated", coupon);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
