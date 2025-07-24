@@ -22,15 +22,15 @@ async function createcouponHandler(req, res) {
 
     // Fetch payment by ID
     const payment = await paymentmodel.findById(paymentid);
- 
+
     if (!payment) {
       return errorResponse(res, 404, "Payment not found");
     }
 
     const rawAmount = payment.amount; // in paise
-   
+
     const totalamount = rawAmount / 100; // 747 in your case
-    
+
     // Find coupon by code (case insensitive)
     const coupon = await couponmodel.findOne({
       code: { $regex: new RegExp("^" + code.trim() + "$", "i") }, // case-insensitive
@@ -63,11 +63,11 @@ async function createcouponHandler(req, res) {
     finalamount = Math.round(finalamount * 100) / 100;
 
     // Optional: update payment with applied coupon
-    // await paymentmodel.findByIdAndUpdate(paymentid, {
-    //   coupon: coupon.code,
-    //   discountamount,
-    //   finalamount
-    // });
+    await paymentmodel.findByIdAndUpdate(paymentid, {
+      couponid: coupon._id,
+      discountamount,
+      finalamount,
+    });
 
     return successResponse(res, "Coupon applied successfully", {
       originalAmount: totalamount,

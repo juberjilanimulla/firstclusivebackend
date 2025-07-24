@@ -18,6 +18,16 @@ const paymentSchema = new Schema(
     },
     paymentid: String,
     razorpay_payment_id: String,
+    couponid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "coupon",
+    },
+    discountamount: {
+      type: Number, // in rupees
+    },
+    finalamount: {
+      type: Number, // in rupees
+    },
   },
   { timestamps: true, versionKey: false }
 );
