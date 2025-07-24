@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt, { compare } from "bcrypt";
 import crypto from "crypto";
 import usermodel from "../models/usermodel.js";
-import mailjet from "node-mailjet";
 
 const secrectKey = crypto.randomBytes(48).toString("hex");
 
@@ -195,63 +194,3 @@ export default async function getnumber(id) {
   // console.log(id);
   return id;
 }
-
-const mailjetClient = mailjet.apiConnect(
-  process.env.MAILJET_API_KEY,
-  process.env.MAILJET_SECRET_KEY
-);
-
-export const sendPaymentConfirmationEmail = async ({
-  toEmail,
-  toName,
-  amount,
-  method,
-}) => {
-  if (!toEmail || !toEmail.includes("@")) {
-    console.error(" Invalid or missing recipient email:", toEmail);
-    return;
-  }
-
-  try {
-    const result = await mailjetClient
-      .post("send", { version: "v3.1" })
-      .request({
-        Messages: [
-          {
-            From: {
-              Email: "hey@firstclusive.com",
-              Name: "Firstclusive Branding",
-            },
-            To: [
-              {
-                Email: toEmail,
-                Name: toName || "Customer",
-              },
-            ],
-            Subject: "Your Payment Was Successful - Firstclusive Branding",
-            HTMLPart: `
-            <div style="font-family: Arial, sans-serif; color: #222; padding: 20px; max-width: 600px; margin: auto;">
-              <h2 style="color: #36308a;">Thank You for Your Payment!</h2>s
-              <p>Hi ${toName || "there"},</p>
-              <p>We’ve received your payment successfully.</p>
-              <table style="margin-top: 20px; border-collapse: collapse;">
-                <tr><td><strong>Amount Paid:</strong></td><td style="padding-left: 10px;">₹${amount}</td></tr>
-                <tr><td><strong>Payment Method:</strong></td><td style="padding-left: 10px;">${method.toUpperCase()}</td></tr>
-                <tr><td><strong>Support Email:</strong></td><td style="padding-left: 10px;">hey@firstclusive.com</td></tr>
-              </table>
-              <p style="margin-top: 30px;">If you have any questions or need assistance, feel free to contact us anytime.</p>
-              <p style="margin-top: 20px;">Regards,<br/><strong>Team Firstclusive</strong></p>
-              <div style="margin-top: 40px; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
-                This is an automated confirmation from Firstclusive Branding, Hyderabad. No reply is needed.
-              </div>
-            </div>
-          `,
-          },
-        ],
-      });
-
-    return result.body;
-  } catch (err) {
-    console.error("Mailjet email send error:", err);
-  }
-};

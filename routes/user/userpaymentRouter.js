@@ -6,7 +6,6 @@ import {
 import paymentmodel from "../../models/paymentmodel.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import { sendPaymentConfirmationEmail } from "../../helpers/helperFunction.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -85,12 +84,7 @@ async function verifypaymentHandler(req, res) {
       );
 
       // send branding confirmation email
-      await sendPaymentConfirmationEmail({
-        toEmail: updated.email,
-        toName: updated.name || "Customer",
-        amount: updated.amount,
-        method: actualMethod,
-      });
+ 
 
       return successResponse(
         res,
