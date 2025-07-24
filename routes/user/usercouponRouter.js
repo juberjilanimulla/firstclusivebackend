@@ -16,29 +16,34 @@ async function createcouponHandler(req, res) {
   try {
     const { code, paymentid } = req.body;
 
-    // Validate inputs
     if (!code || !paymentid) {
       return errorResponse(res, 400, "code and paymentid are required");
     }
 
-    // Get payment/order details
+    // Fetch payment by ID
     const payment = await paymentmodel.findById(paymentid);
+ 
     if (!payment) {
       return errorResponse(res, 404, "Payment not found");
     }
 
-    const totalamount = payment.amount; // or netamount, totalamount, etc.
-
-    // Validate coupon
+    const rawAmount = payment.amount; // in paise
+   
+    const totalamount = rawAmount / 100; // 747 in your case
+    
+    // Find coupon by code (case insensitive)
     const coupon = await couponmodel.findOne({
-      code: code.toLowerCase(),
+      code: { $regex: new RegExp("^" + code.trim() + "$", "i") }, // case-insensitive
       active: true,
     });
+
     if (!coupon) {
       return errorResponse(res, 404, "Invalid or inactive coupon code");
     }
 
-    if (new Date() > new Date(coupon.expiresat)) {
+    // Check if coupon expired
+    const now = new Date();
+    if (now > new Date(coupon.expiresat)) {
       return errorResponse(res, 400, "Coupon has expired");
     }
 
@@ -50,21 +55,26 @@ async function createcouponHandler(req, res) {
       discountamount = coupon.discountvalue;
     }
 
-    let finalamount = totalamount - discountamount;
-    if (finalamount < 0) finalamount = 0;
+    // Round to 2 decimal places
+    discountamount = Math.min(discountamount, totalamount);
+    discountamount = Math.round(discountamount * 100) / 100;
 
-    // Optional: update payment object with applied coupon
+    let finalamount = totalamount - discountamount;
+    finalamount = Math.round(finalamount * 100) / 100;
+
+    // Optional: update payment with applied coupon
     // await paymentmodel.findByIdAndUpdate(paymentid, {
     //   coupon: coupon.code,
     //   discountamount,
     //   finalamount
     // });
 
-    successResponse(res, "coupon applied", {
+    return successResponse(res, "Coupon applied successfully", {
       originalAmount: totalamount,
       discountamount,
       finalamount,
       couponUsed: coupon.code,
+      discountType: coupon.discounttype,
     });
   } catch (error) {
     console.log("error", error);
