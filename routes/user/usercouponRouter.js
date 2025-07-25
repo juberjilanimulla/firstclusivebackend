@@ -33,7 +33,7 @@ async function createcouponHandler(req, res) {
       code: { $regex: new RegExp("^" + code.trim() + "$", "i") }, // case-insensitive
       active: true,
     });
-
+  
     if (!coupon) {
       return errorResponse(res, 404, "Invalid or inactive coupon code");
     }
@@ -61,11 +61,11 @@ async function createcouponHandler(req, res) {
 
     // Optional: update payment with applied coupon
 
-
     return successResponse(res, "Coupon applied successfully", {
       originalAmount: totalamounts,
       discountamount,
       finalamount,
+      couponid: coupon._id,
       couponUsed: coupon.code,
       discountType: coupon.discounttype,
     });

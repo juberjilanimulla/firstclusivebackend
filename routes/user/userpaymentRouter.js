@@ -21,13 +21,17 @@ export default userpaymentRouter;
 
 async function createpaymentHandler(req, res) {
   try {
-    const { billingid, amount, method } = req.body;
+    const { billingid, amount, method, couponid, discountamount, finalamount } =
+      req.body;
     if (!billingid || !amount || !method) {
       return errorResponse(res, 400, "some params are missing");
     }
+    // Ensure we are using discounted amount if provided
+    const amountToPay = finalamount !== undefined ? finalamount : amount;
+
     // Step 1: Create Razorpay Order
     const options = {
-      amount: amount, // amount in paise
+      amount: amountToPay * 100, // amount in paise
       currency: "INR",
       receipt: `rcpt_${billingid}`,
     };
@@ -39,6 +43,9 @@ async function createpaymentHandler(req, res) {
       amount,
       status: "pending",
       paymentid: order.id,
+      couponid: couponid || null,
+      discountamount: discountamount || 0,
+      finalamount: amountToPay,
     });
 
     successResponse(res, "order_created", {
@@ -84,7 +91,6 @@ async function verifypaymentHandler(req, res) {
       );
 
       // send branding confirmation email
- 
 
       return successResponse(
         res,

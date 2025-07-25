@@ -21,12 +21,16 @@ const paymentSchema = new Schema(
     couponid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "coupon",
+      default: "",
     },
     discountamount: {
-      type: Number, // in rupees
+      type: Number,
+      default: 0,
+      // in rupees
     },
     finalamount: {
-      type: Number, // in rupees
+      type: Number,
+      default: 0, // in rupees
     },
   },
   { timestamps: true, versionKey: false }
