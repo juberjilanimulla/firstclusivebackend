@@ -4,33 +4,30 @@ import {
   errorResponse,
 } from "../../helpers/serverResponse.js";
 import couponmodel from "../../models/couponmodel.js";
-import paymentmodel from "../../models/paymentmodel.js";
+import servicemodel from "../../models/servicesmodel.js";
 
 const usercouponRouter = Router();
 
 usercouponRouter.post("/create", createcouponHandler);
+usercouponRouter.get("/", getcouponHandler);
 
 export default usercouponRouter;
 
 async function createcouponHandler(req, res) {
   try {
-    const { code, paymentid } = req.body;
+    const { code, serviceid } = req.body;
 
-    if (!code || !paymentid) {
-      return errorResponse(res, 400, "code and paymentid are required");
+    if (!code || !serviceid) {
+      return errorResponse(res, 400, "code and serviceid are required");
     }
 
-    // Fetch payment by ID
-    const payment = await paymentmodel.findById(paymentid);
-
-    if (!payment) {
-      return errorResponse(res, 404, "Payment not found");
+    // service
+    const service = await servicemodel.findById(serviceid);
+    if (!service) {
+      return errorResponse(res, 404, "Service not found");
     }
 
-    const rawAmount = payment.amount; // in paise
-
-    const totalamount = rawAmount / 100; // 747 in your case
-
+    const totalamounts = service.totalamount;
     // Find coupon by code (case insensitive)
     const coupon = await couponmodel.findOne({
       code: { $regex: new RegExp("^" + code.trim() + "$", "i") }, // case-insensitive
@@ -50,32 +47,38 @@ async function createcouponHandler(req, res) {
     // Calculate discount
     let discountamount = 0;
     if (coupon.discounttype === "percentage") {
-      discountamount = (totalamount * coupon.discountvalue) / 100;
+      discountamount = (totalamounts * coupon.discountvalue) / 100;
     } else if (coupon.discounttype === "amount") {
       discountamount = coupon.discountvalue;
     }
 
     // Round to 2 decimal places
-    discountamount = Math.min(discountamount, totalamount);
+    discountamount = Math.min(discountamount, totalamounts);
     discountamount = Math.round(discountamount * 100) / 100;
 
-    let finalamount = totalamount - discountamount;
+    let finalamount = totalamounts - discountamount;
     finalamount = Math.round(finalamount * 100) / 100;
 
     // Optional: update payment with applied coupon
-    await paymentmodel.findByIdAndUpdate(paymentid, {
-      couponid: coupon._id,
-      discountamount,
-      finalamount,
-    });
+
 
     return successResponse(res, "Coupon applied successfully", {
-      originalAmount: totalamount,
+      originalAmount: totalamounts,
       discountamount,
       finalamount,
       couponUsed: coupon.code,
       discountType: coupon.discounttype,
     });
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getcouponHandler(req, res) {
+  try {
+    const coupon = await couponmodel.find().sort({ createdAt: -1 });
+    successResponse(res, "success", coupon);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
