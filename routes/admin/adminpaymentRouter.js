@@ -83,7 +83,7 @@ async function getallpaymentHandler(req, res) {
           as: "service",
         },
       },
-    
+
       {
         $match: query,
       },
@@ -92,6 +92,9 @@ async function getallpaymentHandler(req, res) {
           method: 1,
           status: 1,
           createdAt: 1,
+          amount: 1,
+          discountamount: 1,
+          finalamount: 1,
           name: "$billing.name",
           email: "$billing.email",
           mobile: "$billing.mobile",
@@ -101,9 +104,6 @@ async function getallpaymentHandler(req, res) {
               as: "s",
               in: {
                 servicename: "$$s.servicename",
-                servicecost: "$$s.servicecost",
-                gstcost: "$$s.gstcost",
-                totalamount: "$$s.totalamount",
               },
             },
           },

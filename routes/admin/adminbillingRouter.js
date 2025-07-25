@@ -77,6 +77,17 @@ async function getallbillingHandler(req, res) {
         $unwind: "$service",
       },
       {
+        $lookup: {
+          from: "payments",
+          localField: "_id",
+          foreignField: "billingid",
+          as: "payment",
+        },
+      },
+      {
+        $unwind: "$payment",
+      },
+      {
         $match: query,
       },
       {
@@ -95,6 +106,8 @@ async function getallbillingHandler(req, res) {
           servicecost: { $sum: "$service.servicecost" },
           gstcost: { $sum: "$service.gstcost" },
           totalamount: { $sum: "$service.totalamount" },
+          discountamount: { $first: "$payment.discountamount" },
+          finalamount: { $first: "$payment.finalamount" },
         },
       },
       { $sort: sortBy },
