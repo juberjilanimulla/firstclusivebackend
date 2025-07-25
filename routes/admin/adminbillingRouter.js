@@ -66,6 +66,9 @@ async function getallbillingHandler(req, res) {
 
     const bills = await billingmodel.aggregate([
       {
+        $match: query,
+      },
+      {
         $lookup: {
           from: "services",
           localField: "serviceid",
@@ -85,11 +88,12 @@ async function getallbillingHandler(req, res) {
         },
       },
       {
-        $unwind: "$payment",
+        $unwind: {
+          path: "$payment",
+          preserveNullAndEmptyArrays: true,
+        },
       },
-      {
-        $match: query,
-      },
+
       {
         $group: {
           _id: "$_id",
@@ -105,7 +109,7 @@ async function getallbillingHandler(req, res) {
           servicename: { $push: "$service.servicename" },
           servicecost: { $sum: "$service.servicecost" },
           gstcost: { $sum: "$service.gstcost" },
-          totalamount: { $sum: "$service.totalamount" },
+          totalamount: { $sum: "$service.totalcost" },
           discountamount: { $first: "$payment.discountamount" },
           finalamount: { $first: "$payment.finalamount" },
         },
