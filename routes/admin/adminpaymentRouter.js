@@ -73,7 +73,10 @@ async function getallpaymentHandler(req, res) {
         },
       },
       {
-        $unwind: "$billing",
+        $unwind: {
+          path: "$billing",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
