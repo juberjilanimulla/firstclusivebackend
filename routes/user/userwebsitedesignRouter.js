@@ -9,6 +9,7 @@ const userwebsitedesignRouter = Router();
 
 userwebsitedesignRouter.get("/check/", getwebsitedesigncheckHandler);
 userwebsitedesignRouter.post("/create", createwebsitedesignHandler);
+userwebsitedesignRouter.post("/upload");
 
 export default userwebsitedesignRouter;
 
