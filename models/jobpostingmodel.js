@@ -23,6 +23,10 @@ const jobpostingSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    openposition: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false }
 );

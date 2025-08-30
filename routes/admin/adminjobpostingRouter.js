@@ -12,6 +12,7 @@ adminjobpostingRouter.post("/update", updatejobpostingHandler);
 adminjobpostingRouter.post("/delete", deletejobpostingHandler);
 adminjobpostingRouter.get("/single", getsinglejobpostingHandler);
 adminjobpostingRouter.post("/published/:id", publishedjobpostingHandler);
+adminjobpostingRouter.post("/openposition/:id", openpositionjobpostingHandler);
 
 export default adminjobpostingRouter;
 
@@ -335,6 +336,30 @@ async function publishedjobpostingHandler(req, res) {
       return errorResponse(res, 404, "job not found");
     }
     return successResponse(res, "success", job);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function openpositionjobpostingHandler(req, res) {
+  try {
+    const jobid = req.params.id;
+    const { openposition } = req.body;
+
+    if (typeof openposition !== "boolean") {
+      return errorResponse(res, 400, "Invalid openposition status");
+    }
+    const jobposition = await jobpostingmodel.findByIdAndUpdate(
+      jobid,
+      { openposition },
+      { new: true }
+    );
+
+    if (!jobposition) {
+      return errorResponse(res, 404, "jobposition not found");
+    }
+    return successResponse(res, "success", jobposition);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
