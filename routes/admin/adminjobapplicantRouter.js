@@ -17,7 +17,7 @@ const s3 = new S3Client({
 const adminjobapplicantsRouter = Router();
 
 adminjobapplicantsRouter.post("/getall", getalljobapplicantsHandler);
-adminjobapplicantsRouter.post("/delete", deletejobapplicantsHandler);
+adminjobapplicantsRouter.delete("/delete", deletejobapplicantsHandler);
 
 export default adminjobapplicantsRouter;
 
@@ -141,7 +141,7 @@ async function deletejobapplicantsHandler(req, res) {
     }
 
     // Delete blog from DB
-    await blogmodel.findByIdAndDelete(_id);
+    await jobapplicantmodel.findByIdAndDelete(_id);
     return successResponse(res, "job appolicants and associated pdf deleted");
   } catch (error) {
     console.log("error", error);
