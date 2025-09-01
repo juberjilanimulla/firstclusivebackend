@@ -13,19 +13,7 @@ adminjobapplicantsRouter.post("/getall", getalljobapplicantsHandler);
 adminjobapplicantsRouter.post("/delete", deletejobapplicantsHandler);
 
 export default adminjobapplicantsRouter;
-const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-const token = JSON.parse(fs.readFileSync("token.json"));
 
-const { client_secret, client_id, redirect_uris } =
-  credentials.installed || credentials.web;
-const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
-);
-oAuth2Client.setCredentials(token);
-
-const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
 async function getalljobapplicantsHandler(req, res) {
   try {

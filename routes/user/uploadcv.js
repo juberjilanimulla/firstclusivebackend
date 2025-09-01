@@ -1,282 +1,166 @@
-// import { Router } from "express";
-// import multer from "multer";
-// import path from "path";
-// import { fileURLToPath } from "url";
-// import { dirname } from "path";
-// import {
-//   successResponse,
-//   errorResponse,
-// } from "../../helpers/serverResponse.js";
-// import getnumber from "../../helpers/helperFunction.js";
-// import fs from "fs";
-// import mongoose from "mongoose";
-// import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-// // Validate PDF file type
-// function checkPdfFileType(file, cb) {
-//   const filetypes = /pdf/;
-//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-//   const mimetype = filetypes.test(file.mimetype);
-
-//   if (mimetype && extname) {
-//     cb(null, true);
-//   } else {
-//     cb(new Error("Error: Only PDF files are allowed!"));
-//   }
-// }
-
-// // Storage for single PDF
-// const pdfStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const uploadPath = path.join(__dirname, "../../pdfs");
-//     fs.mkdirSync(uploadPath, { recursive: true });
-//     cb(null, uploadPath);
-//   },
-//   filename: async (req, file, cb) => {
-//     try {
-//       const jid = req.params.id;
-//       const jobapplicantnumber = await getnumber(jid);
-//       // const jobapplicantnumber = "applicant";
-//       const id = Math.floor(Math.random() * 900000) + 1000;
-//       const ext = path.extname(file.originalname);
-//       const filename = `${jobapplicantnumber}__${id}${ext}`;
-//       cb(null, filename);
-//     } catch (error) {
-//       cb(error);
-//     }
-//   },
-// });
-
-// const pdfUpload = multer({
-//   storage: pdfStorage,
-//   fileFilter: (req, file, cb) => checkPdfFileType(file, cb),
-// }).single("pdf");
-
-// const pdfuploadRouter = Router();
-
-// pdfuploadRouter.post("/:id", async (req, res) => {
-//   const jobapplicantid = req.params.id.trim();
-
-//   if (!mongoose.Types.ObjectId.isValid(jobapplicantid)) {
-//     return errorResponse(res, 400, "Invalid product ID");
-//   }
-
-//   const jobapplicantexist = await jobapplicantmodel.findById(jobapplicantid);
-
-//   if (!jobapplicantexist) {
-//     return errorResponse(res, 404, "job applicants not found");
-//   }
-
-//   pdfUpload(req, res, async (err) => {
-//     if (err) {
-//       return errorResponse(res, 400, err.message || "Upload error");
-//     }
-
-//     if (!req.file) {
-//       return errorResponse(res, 400, "No PDF file was uploaded.");
-//     }
-
-//     try {
-//       const pdfFile = req.file.filename;
-//       const jobapplicant = await jobapplicantmodel.findByIdAndUpdate(
-//         jobapplicantid,
-//         { pdf: pdfFile },
-//         { new: true }
-//       );
-
-//       return successResponse(res, "PDF uploaded successfully", jobapplicant);
-//     } catch (error) {
-//       console.log("Error:", error.message);
-//       return errorResponse(res, 500, "Internal server error");
-//     }
-//   });
-// });
-
-// export default pdfuploadRouter;
-
 import { Router } from "express";
 import multer from "multer";
-import { google } from "googleapis";
+import * as fs from "fs";
+import { createReadStream } from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import path from "path";
-import fs from "fs";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import {
   successResponse,
   errorResponse,
 } from "../../helpers/serverResponse.js";
-import dotenv from "dotenv";
-import getnumber from "../../helpers/helperFunction.js";
 import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// TEMP storage for multer (just during upload)
-const tempStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const tempPath = path.join(__dirname, "../../temp");
-    fs.mkdirSync(tempPath, { recursive: true });
-    cb(null, tempPath);
-  },
-  //   filename: async (req, file, cb) => {
-  //     try {
-  //       const pid = req.params.id;
-  //       const pdfnumber = await getnumber(pid);
-  //       const id = Math.floor(Math.random() * 900000) + 1000;
-  //       const ext = path.extname(file.originalname);
-  //       const filename = `${pdfnumber}__${id}${ext}`;
-  //       cb(null, filename);
-  //     } catch (error) {
-  //       cb(error);
-  //     }
-  //   },
-  // });
-  filename: async (req, file, cb) => {
-    try {
-      const pid = req.params.id;
-      // Get applicant details from DB
-      const applicant = await jobapplicantmodel.findById(pid);
-      const fullName = applicant?.fullname || "Applicant";
-      // Clean name (remove spaces and symbols)
-      const cleanName = fullName.replace(/\s+/g, "_").replace(/[^\w\-]/g, "");
-      const pdfnumber = await getnumber(pid);
-      const id = Math.floor(Math.random() * 900000) + 1000;
-      const ext = path.extname(file.originalname);
-
-      // Final filename
-      const filename = `${cleanName}_${pdfnumber}__${id}${ext}`;
-
-      cb(null, filename);
-    } catch (error) {
-      cb(error);
-    }
-  },
-});
-function checkPdfFileType(file, cb) {
-  const filetypes = /\.(pdf|doc|docx)$/i;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const allowedMimes = [
-    "application/pdf",
-    "application/msword", // .doc
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-  ];
-  const mimetype = allowedMimes.includes(file.mimetype);
-
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb(new Error("Only PDF and Word documents (.doc, .docx) are allowed"));
-  }
+// --- Guard: required envs
+const {
+  AWS_REGION,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_BUCKET_NAME,
+} = process.env;
+console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME);
+console.log("AWS_REGION:", process.env.AWS_REGION);
+if (
+  !AWS_REGION ||
+  !AWS_ACCESS_KEY_ID ||
+  !AWS_SECRET_ACCESS_KEY ||
+  !AWS_BUCKET_NAME
+) {
+  console.error("Missing required AWS_* env vars. Check .env.");
 }
 
-const upload = multer({
-  storage: tempStorage,
-  fileFilter: (req, file, cb) => {
-    checkPdfFileType(file, cb);
+// AWS S3 v3 Setup
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
-}).single("pdf");
+});
 
-// Google Drive setup
-const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-const { client_secret, client_id, redirect_uris } = credentials.installed;
+// Multer Setup
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, "../../temp");
+    fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
 
-const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
-);
-
-oAuth2Client.setCredentials(JSON.parse(fs.readFileSync("token.json")));
-
-const drive = google.drive({ version: "v3", auth: oAuth2Client });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExts = [".pdf", ".doc", ".docx", ".rtf", ".odt"];
+    if (allowedExts.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF, Word, RTF, and ODT files are allowed"));
+    }
+  },
+}).single("resume");
 
 const cvpdfRouter = Router();
 
+// cvpdfRouter.post("/:id", (req, res) => {
+//   upload(req, res, async (err) => {
+//     if (err) return errorResponse(res, 400, err.message || "Upload error");
+//     if (!req.file) return errorResponse(res, 400, "No file uploaded");
+
+//     try {
+//       const resumepdf = await jobapplicantmodel.findById(req.params.id);
+
+//       if (!resumepdf) {
+//         fs.unlinkSync(req.file.path);
+//         return errorResponse(res, 404, "Record not found");
+//       }
+
+//       // Upload file to S3
+//       const fileStream = createReadStream(req.file.path);
+//       const fileName = `${req.params.id}-${Date.now()}-${
+//         req.file.originalname
+//       }`;
+//       const s3Key = `resumes/${fileName}`; // All resumes go under "resumes/" folder
+
+//       const uploadCommand = new PutObjectCommand({
+//         Bucket: process.env.AWS_BUCKET_NAME,
+//         Key: s3Key,
+//         Body: fileStream,
+//         ContentType: req.file.mimetype, // will auto-detect like application/pdf, application/msword, etc
+//       });
+
+//       await s3.send(uploadCommand);
+
+//       const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+
+//       // Save single URL in the string field (update your schema accordingly)
+//       resumepdf.pdf = fileUrl;
+//       await resumepdf.save();
+
+//       // Remove local file
+//       fs.unlinkSync(req.file.path);
+
+//       return successResponse(res, "Resume uploaded successfully", resumepdf);
 cvpdfRouter.post("/:id", (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
+      // Multer error (validation / size / etc.)
       return errorResponse(res, 400, err.message || "Upload error");
     }
 
-    if (!req.file) {
-      return errorResponse(res, 400, "No file was uploaded");
-    }
+    if (!req.file) return errorResponse(res, 400, "No file uploaded");
 
-    const tempFilePath = req.file.path;
-
+    let localPath;
     try {
-      // 1. Find applicant
-      const applicant = await jobapplicantmodel.findById(req.params.id);
-      if (!applicant) {
-        fs.unlinkSync(tempFilePath);
-        return errorResponse(res, 404, "Applicant not found");
+      const applicantId = req.params.id;
+      const resumepdf = await jobapplicantmodel.findById(applicantId);
+      if (!resumepdf) {
+        // cleanup local file
+        localPath = req.file.path;
+        if (localPath && fs.existsSync(localPath)) fs.unlinkSync(localPath);
+        return errorResponse(res, 404, "Record not found");
       }
 
-      // 2. Create/find Google Drive folder
-      const folderName = "firstclusiveJobApplicantsResume";
-      const folderList = await drive.files.list({
-        q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-        fields: "files(id)",
+      // Build S3 key and upload
+      localPath = req.file.path;
+      const orig = req.file.originalname || "resume";
+      const safeOrig = orig.replace(/[^\w.\-]+/g, "_"); // sanitize name
+      const fileName = `${applicantId}-${Date.now()}-${safeOrig}`;
+      const s3Key = `resumes/${fileName}`;
+
+      // Some providers/clients send odd mimetypes; fall back to octet-stream
+      const contentType = req.file.mimetype || "application/octet-stream";
+
+      const fileStream = createReadStream(localPath);
+      const cmd = new PutObjectCommand({
+        Bucket: AWS_BUCKET_NAME,
+        Key: s3Key,
+        Body: fileStream,
+        ContentType: contentType,
       });
 
-      let folderId;
-      if (folderList.data.files.length > 0) {
-        folderId = folderList.data.files[0].id;
-      } else {
-        const folder = await drive.files.create({
-          resource: {
-            name: folderName,
-            mimeType: "application/vnd.google-apps.folder",
-          },
-          fields: "id",
-        });
-        folderId = folder.data.id;
-      }
+      await s3.send(cmd);
 
-      // 3. Set metadata with folder ID
-      const fileMeta = {
-        name: req.file.filename,
-        parents: [folderId],
-      };
+      const fileUrl = `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${s3Key}`;
 
-      const media = {
-        mimeType: "application/pdf",
-        body: fs.createReadStream(tempFilePath),
-      };
+      // Save URL into the applicant doc
+      resumepdf.pdf = fileUrl;
+      await resumepdf.save();
 
-      // 4. Upload to Drive
-      const uploaded = await drive.files.create({
-        resource: fileMeta,
-        media: media,
-        fields: "id, webViewLink",
-      });
+      // Remove local file after successful upload
+      if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
 
-      // 5. Make file public
-      await drive.permissions.create({
-        fileId: uploaded.data.id,
-        requestBody: {
-          role: "reader",
-          type: "anyone",
-        },
-      });
-
-      const publicUrl = uploaded.data.webViewLink;
-
-      // 6. Save to MongoDB
-      applicant.pdf = publicUrl;
-      await applicant.save();
-
-      fs.unlinkSync(tempFilePath);
-      successResponse(res, "pdf uploaded to Google Drive", applicant);
+      return successResponse(res, "Resume uploaded successfully", resumepdf);
     } catch (error) {
-      console.log("Upload error:", error);
-      errorResponse(res, 500, "Internal server error during upload");
+      if (fs.existsSync(req.file?.path)) fs.unlinkSync(req.file.path);
+      return errorResponse(res, 500, "Resume upload failed");
     }
   });
 });
