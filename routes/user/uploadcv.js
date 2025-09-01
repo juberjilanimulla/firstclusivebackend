@@ -22,8 +22,7 @@ const {
   AWS_SECRET_ACCESS_KEY,
   AWS_BUCKET_NAME,
 } = process.env;
-console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME);
-console.log("AWS_REGION:", process.env.AWS_REGION);
+
 if (
   !AWS_REGION ||
   !AWS_ACCESS_KEY_ID ||

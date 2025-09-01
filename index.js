@@ -4,14 +4,9 @@ import dbConnect from "./db.js";
 import morgan from "morgan";
 import cors from "cors";
 import bodyParser from "body-parser";
-import path from "path";
 import adminRouter from "./routes/admin/adminRouter.js";
 import authRouter from "./routes/auth/authRouter.js";
-import {
-  Admin,
-  authMiddleware,
-  isAdminMiddleware,
-} from "./helpers/helperFunction.js";
+import { Admin } from "./helpers/helperFunction.js";
 import userRouter from "./routes/user/userRouter.js";
 
 const app = express();

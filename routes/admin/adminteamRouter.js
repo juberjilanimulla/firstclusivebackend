@@ -5,8 +5,6 @@ import {
 } from "../../helpers/serverResponse.js";
 import teamModel from "../../models/teammodel.js";
 import imgprofileuploadRouter from "./uploadimageRouter.js";
-import { google } from "googleapis";
-import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 
 const adminteamRouter = Router();
@@ -19,19 +17,6 @@ adminteamRouter.post("/delete", deleteteamHandler);
 adminteamRouter.get("/single", getsingleteamHandler);
 adminteamRouter.post("/delete/profileimg", deleteprofileimgHandler);
 export default adminteamRouter;
-
-const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-const token = JSON.parse(fs.readFileSync("token.json"));
-
-const { client_secret, client_id, redirect_uris } = credentials.installed;
-const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
-);
-oAuth2Client.setCredentials(token);
-
-const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
 // async function getteamHandler(req,res){
 //     try {

@@ -4,8 +4,15 @@ import {
   successResponse,
 } from "../../helpers/serverResponse.js";
 import jobapplicantmodel from "../../models/jobapplicantsmodel.js";
-import { google } from "googleapis";
-import fs from "fs";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const adminjobapplicantsRouter = Router();
 
@@ -13,7 +20,6 @@ adminjobapplicantsRouter.post("/getall", getalljobapplicantsHandler);
 adminjobapplicantsRouter.post("/delete", deletejobapplicantsHandler);
 
 export default adminjobapplicantsRouter;
-
 
 async function getalljobapplicantsHandler(req, res) {
   try {
@@ -122,21 +128,21 @@ async function deletejobapplicantsHandler(req, res) {
     if (!jobapplicants) {
       return errorResponse(res, 404, "jobapplicants id not found");
     }
-    // Extract file ID from Google Drive link
-    const pdfUrl = jobapplicants.pdf;
-    const fileIdMatch = pdfUrl.match(/\/d\/(.+?)\//);
-    const fileId = fileIdMatch ? fileIdMatch[1] : null;
 
-    if (fileId) {
-      try {
-        await drive.files.delete({ fileId });
-        console.log("Google Drive file deleted:", fileId);
-      } catch (err) {
-        console.warn("Failed to delete file from Drive:", err.message);
-      }
+    const s3Key = jobapplicants.pdf?.split(".amazonaws.com/")[1];
+
+    if (s3Key) {
+      await s3.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: s3Key,
+        })
+      );
     }
 
-    return successResponse(res, "Successfully deleted");
+    // Delete blog from DB
+    await blogmodel.findByIdAndDelete(_id);
+    return successResponse(res, "job appolicants and associated pdf deleted");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
