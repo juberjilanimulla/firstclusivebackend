@@ -18,9 +18,15 @@ const blogSchema = new Schema(
       type: String,
       default: "",
     },
-    content: {
-      type: String,
-    },
+    // content: {
+    //   type: String,
+    // },
+    content: [
+      {
+        title: String,
+        description: String,
+      },
+    ],
     author: {
       type: String,
       default: "Team Firstclusive",
