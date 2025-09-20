@@ -15,8 +15,9 @@ adminblogRouter.post("/delete", deleteblogsHandler);
 adminblogRouter.post("/singleblog", getsingleblogsHandler);
 adminblogRouter.post("/published", publishedapprovalHandler);
 adminblogRouter.get("/getall", getallblogsgetHandler);
-
+adminblogRouter.delete("/deletesingle", deleteblogimageHandler);
 adminblogRouter.use("/blogimage", coverimageuploadRouter);
+
 export default adminblogRouter;
 
 async function getallblogsHandler(req, res) {
@@ -216,6 +217,45 @@ async function getallblogsgetHandler(req, res) {
   try {
     const blog = await blogsmodel.find();
     successResponse(res, "success", blog);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function deleteblogimageHandler(req, res) {
+  try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "Blog ID is required");
+    }
+
+    const blog = await blogsmodel.findById(_id);
+    if (!blog) {
+      return errorResponse(res, 404, "blog not found");
+    }
+
+    const blogimageurl = blog.coverimage;
+    const match = blogimageurl?.match(/\/v\d+\/(.+)\.(jpg|jpeg|png|webp)/);
+    const fileId = match ? match[1] : null;
+
+    if (fileId) {
+      try {
+        await cloudinary.uploader.destroy(fileId);
+        console.log("cloudinary image deleted:", fileId);
+      } catch (err) {
+        console.warn(
+          "Failed to delete profile image from cloudinary:",
+          err.message
+        );
+      }
+    }
+
+    // Clear the profile image URL in the DB
+    blog.coverimage = "";
+    await blog.save();
+
+    return successResponse(res, "blog image deleted successfully", blog);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
