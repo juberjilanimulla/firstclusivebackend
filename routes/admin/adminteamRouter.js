@@ -102,7 +102,7 @@ async function getteamHandler(req, res) {
         },
       },
 
-      { $sort: { rolePriority: 1, createdAt: -1 } }, // Sort by priority, then by latest
+      { $sort: { rolePriority: 1, createdAt: 1 } }, // Sort by priority, then by latest
       { $skip: skip },
       { $limit: limit },
       { $project: { normalizedRole: 0, rolePriority: 0 } }, // Clean up extra fields
