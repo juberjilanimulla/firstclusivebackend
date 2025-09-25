@@ -35,7 +35,8 @@ async function getallblogsHandler(req, res) {
         { title: { $regex: searchRegex } },
         { metadescription: { $regex: searchRegex } },
         { keywords: { $regex: searchRegex } },
-        { content: { $regex: searchRegex } },
+        { "content.title": { $regex: searchRegex } },
+        { "content.description": { $regex: searchRegex } },
       ];
     }
 
